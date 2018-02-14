@@ -105,9 +105,9 @@ def _plot_f1(dicc, years):
     return f1_df
 
 
-# ker: Matern32(3, ARD=True)
-path_estimacion_5 = 'mp_test_all_5.csv'
-dicc_5 = dicc_error_volumen(path_estimacion_5)
+# # ker: Matern32(3, ARD=True)
+# path_estimacion_5 = 'mp_test_all_5.csv'
+# dicc_5 = dicc_error_volumen(path_estimacion_5)
 
 # # ker: RBF(3, ARD=True)
 # path_estimacion_2 = 'mp_test_all_2.csv'
@@ -118,6 +118,7 @@ dicc_5 = dicc_error_volumen(path_estimacion_5)
 # dicc_4 = dicc_error_volumen(path_estimacion_4)
 
 # ker: Matern52(3, ARD=True)
-path_estimacion_6 = 'mp_test_all_6.csv'
-dicc_6 = dicc_error_volumen(path_estimacion_6)
+path_estimacion_6 = 'estimaciones/'
+est_6 = 'mp_test_all_6.csv'
+dicc_6 = dicc_error_volumen(path_estimacion_6+est_6)
 plt.show()

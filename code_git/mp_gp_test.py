@@ -449,14 +449,15 @@ if __name__ == '__main__':
     HOLEIDs = get_holeids()
     kernel = GPy.kern.Matern52(3, ARD=True)
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs[:8], 8, 'sgpr', kernel)
     print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
 
     # exportar los datos
     outfile_name = 'mp_test_'+'all_6'+'.csv'
-    outfile = open(outfile_name, 'w')
+    path_estimacion = 'estimaciones/'
+    outfile = open(path_estimacion + outfile_name, 'w')
     outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    for holeid in HOLEIDs:
+    for holeid in HOLEIDs[:8]:
         pozo = get_pozo_holeid(holeid)
         for i, fila in enumerate(pozo):
             line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
