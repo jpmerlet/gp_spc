@@ -3,7 +3,6 @@ import numpy as np
 import time
 from os import getpid
 import pandas as pd
-import matplotlib.pyplot as plt
 import scipy.spatial as spatial
 from scipy import stats
 from scipy.special import inv_boxcox
@@ -118,94 +117,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         print()
 
 
-def estimacion_by_point(modelo, ker, transform=False, Plotear=False, std=1,
-                        lik=GPy.likelihoods.Gaussian(),
-                        inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
-    # diccionario que guardara las predicciones por dhid
-    global m, y_pred, lmb
-    dicc_preds = dict()
-
-    # distancia a la que se buscan muestras (quizas es mejor tomar la minima necesaria?)
-    distancia = 33
-    IDHOLEs = get_holeids()
-    n = len(IDHOLEs)
-    # HOLEIDs.remove('F06-1580-016')
-    # HOLEIDs.remove('F06-1610-004')
-    # HOLEIDs.remove('F06-1625-021')
-    # HOLEIDs.remove('F13-1595-005')
-    # HOLEIDs.remove('F05-1565-009')
-    for idx, idhole in enumerate(IDHOLEs):
-        y_preds = list()
-        test_points = get_test_points_holeid(idhole)
-        for test_point in test_points:
-            X_df, y_df = get_trainingSet_by_point(test_point, distancia)
-            X = X_df[['midx', 'midy', 'midz']].as_matrix()
-            y = y_df[['cut']].as_matrix()
-
-            X_std = (X - X.mean()) / X.std()
-            y_std = (y - y.mean()) / y.std()
-            if std == 1:
-                test_point_std = (test_point - X.mean()) / X.std()
-            elif std == 0:
-                (test_point - test_points.mean()) / test_points.std()
-            else:
-                print('std debe ser 0 o 1.')
-            if X_df.shape[0] < 10:
-                y_preds.extend(list(np.array([-99])))
-                continue
-            if modelo == 'sgpr':
-                # m = GPy.models.SparseGPRegression(X,y,ker)
-                if transform:
-                    y_cox, lmb = stats.boxcox(y)
-                    m = GPy.core.GP(X, y_cox, kernel=ker, likelihood=lik, inference_method=inf)
-                else:
-                    m = GPy.core.GP(X_std, y_std, kernel=ker,
-                                    likelihood=lik,
-                                    inference_method=inf)
-            else:
-                m = GPy.models.GPRegression(X, y, ker)
-            try:
-                m.optimize(messages=False, max_f_eval=1000)
-                y_pred, _ = m.predict(np.array([[test_point_std[0],
-                                                 test_point_std[1],
-                                                 test_point_std[2]]]))
-            except GPy.util.linalg.linalg.LinAlgError as err:
-                if 'not positive definite' in err.message:
-                    print('not positive definite, even with jitter.')
-                    pass
-            except np.linalg.LinAlgError:
-                print('La matriz definida por el kernel no es definida positiva')
-                pass
-            y_preds.extend(list(y_pred * y.std() + y.mean()))
-
-        if transform:
-            y_preds = inv_boxcox(y_preds, lmb)
-        # transformar restricciones en ndarray, por sia caso
-        y_preds_ndarray = np.array(y_preds.copy())
-        dicc_preds[idhole] = y_preds_ndarray
-
-        # guardar valores reales de oro en los puntos test de dhid
-        y_medido = get_y_holeid(idhole).reshape(y_preds_ndarray.shape)
-
-        if Plotear:
-            # se analizan los resultados por dhid
-            fig, ax = plt.subplots()
-            ax.scatter(y_medido, y_preds_ndarray, edgecolors=(0, 0, 0))
-            ax.plot([y_medido.min(), y_medido.max()], [y_medido.min(), y_medido.max()], 'k--', lw=2)
-            ax.set_xlabel('Medido')
-            ax.set_ylabel('Prediccion')
-            ax.set_title('Regresion para el sondaje %s' % idhole)
-            # ax.set_title('DHID:%s, Kernel: %s' % (dhid,gp.kernel_))
-        printProgressBar(idx + 1, n,
-                         prefix='Current HOLEID: {}. Total Progress:'.format(IDHOLEs[(idx + 1) * (idx < n - 1)]),
-                         suffix='Complete', length=50)
-    if Plotear:
-        plt.show()
-    return m, dicc_preds
-
-
-def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, std=1, lik=GPy.likelihoods.Gaussian(),
-                           inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
+def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, std, lik, inf):
     # distancia a la que se buscan muestras (quizas es mejor tomar la minima necesaria?)
     global lmbda
     n = len(IDHOLEs)
@@ -216,9 +128,6 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
         for test_point in test_points:
             X_df, y_df = get_trainingSet_by_point(test_point, distancia)
 
-            # while X_df.shape[0] < 20:
-            #     distancia_aumentada = 5 + distancia
-            #     X_df, y_df = get_trainingSet_by_point(test_point, distancia_aumentada)
             if X_df.shape[0] < 10:
                 y_preds.extend(list(np.array([-99])))
                 continue
@@ -231,14 +140,13 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
 
             if std == 1:
                 test_point_std = (test_point - X.mean()) / X.std()
-            elif std == 0:
-                (test_point - test_points.mean()) / test_points.std()
+
             else:
                 print('std debe ser 0 o 1.')
             if modelo == 'sgpr':
                 # m = GPy.models.SparseGPRegression(X,y,ker)
                 if transform:
-                    y_cox, lmbda = stats.boxcox(y)
+                    y_cox, lmbda = stats.boxcox(y)  # transformamos el dato sin estandarizar
                     modelo = GPy.core.GP(X, y_cox, kernel=ker, likelihood=lik, inference_method=inf)
                 else:
                     modelo = GPy.core.GP(X_std, y_std, kernel=ker,
@@ -250,9 +158,14 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
             y_predicc = -99
             try:
                 modelo.optimize(messages=False, max_f_eval=1000)
-                y_predicc, _ = modelo.predict(np.array([[test_point_std[0],
-                                                         test_point_std[1],
-                                                         test_point_std[2]]]))
+                if transform:
+                    y_predicc, _ = modelo.predict(np.array([[test_point[0],
+                                                             test_point[1],
+                                                             test_point[2]]]))
+                else:
+                    y_predicc, _ = modelo.predict(np.array([[test_point_std[0],
+                                                             test_point_std[1],
+                                                             test_point_std[2]]]))
 
             except GPy.util.linalg.linalg.LinAlgError as err:
                 if 'not positive definite' in err.message:
@@ -261,16 +174,15 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
             except np.linalg.LinAlgError:
                 print('La matriz definida por el kernel no es definida positiva')
                 pass
-            y_preds.extend(list(y_predicc * y.std() + y.mean()))
+            if transform:  # si transformamos no se esta estandarizando!!!
+                y_predicc_inv = inv_boxcox(y_predicc, lmbda)
+                y_preds.extend(list(y_predicc_inv))
+            else:
+                y_preds.extend(list(y_predicc * y.std() + y.mean()))
 
-        if transform:
-            y_preds = inv_boxcox(y_preds, lmbda)
-        # transformar restricciones en ndarray, por sia caso
+        # transformar restricciones en ndarray, just in case
         y_preds_ndarray = np.array(y_preds.copy())
         dicc_preds[idhole] = y_preds_ndarray
-        # printProgressBar(i + 1, n,
-        #               prefix='Current HOLEID: {}. Total Progress:'.format(HOLEIDs[(i + 1) * (i < n - 1)]),
-        #               suffix='Complete', length=50)
         printProgressBar(idx + 1, n,
                          prefix='Current process: {}. Total Progress:'.format(getpid()),
                          suffix='Complete', length=50)
@@ -279,14 +191,17 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
     return
 
 
-def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=33, transform=False):
+def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=33, transform=False, std=1,
+                                      lik=GPy.likelihoods.Gaussian(),
+                                      inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
     out_q = multiprocessing.Queue()
     chuncksize = int(math.ceil(len(IDHOLEs) / float(nprocs)))
     procs = []
     for idx in range(nprocs):
         p = multiprocessing.Process(target=estimation_by_point_mp,
                                     args=(IDHOLEs[chuncksize * idx:chuncksize * (idx + 1)],
-                                          out_q, modelo, ker, distancia, transform))
+                                          out_q, modelo, ker, distancia, transform, std,
+                                          lik, inf))
         procs.append(p)
         p.start()
 
@@ -354,21 +269,22 @@ if __name__ == '__main__':
     # lik: GPy.likelihoods.Gaussian()
     # ker: GPy.kern.RBF(3,ARD = True)
     # inf: GPy.inference.latent_function_inference.ExactGaussianInference()
-
+    # print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
     # HOLEIDs = get_holeids()
-    # kernel = GPy.kern.RBF(3,ARD=True)
+    # kernel = GPy.kern.RBF(3, ARD=True)
     # t0 = time.time()
-    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel)
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 7, 'sgpr', kernel)
     # print('Tiempo para gp en paralelo: {}'.format(time.time()-t0))
-
-    # exportar los datos
+    #
+    # # exportar los datos
+    # path_estimacion = 'estimaciones/'
     # outfile_name = 'mp_test_'+'all_2'+'.csv'
-    # outfile = open(outfile_name, 'w')
+    # outfile = open(path_estimacion + outfile_name, 'w')
     # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
     # for holeid in HOLEIDs:
     #     pozo = get_pozo_holeid(holeid)
-    #    for i, fila in enumerate(pozo):
-    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i,], fila[5]
+    #     for i, fila in enumerate(pozo):
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
     #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
     # outfile.close()
 
@@ -446,20 +362,71 @@ if __name__ == '__main__':
     # modelo: sgpr (Sparse Gaussian process)
     # ker: Matern52(3, ARD=True)
 
+    # HOLEIDs = get_holeids()
+    # kernel = GPy.kern.Matern52(3, ARD=True)
+    # t0 = time.time()
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs[:8], 8, 'sgpr', kernel)
+    # print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
+    #
+    # # exportar los datos
+    # outfile_name = 'mp_test_'+'all_6'+'.csv'
+    # path_estimacion = 'estimaciones/'
+    # outfile = open(path_estimacion + outfile_name, 'w')
+    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    # for holeid in HOLEIDs[:8]:
+    #     pozo = get_pozo_holeid(holeid)
+    #     for i, fila in enumerate(pozo):
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
+    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    # outfile.close()
+    #
+
+    ####################################################################
+    # Ahora se prueba el mismo kernel RBF(3, ARD) con box-cox
+    ####################################################################
+    #
+    # Modelo sobre todos los pozos
+    # modelo: sgpr (Sparse Gaussian process)
+    # transform: False
+    # lik: GPy.likelihoods.Gaussian()
+    # ker: GPy.kern.RBF(3,ARD = True)
+    # inf: GPy.inference.latent_function_inference.ExactGaussianInference()
+    print('Se realiza estimacion con kernel RBF(ARD), parametros: transform=True, std=0')
     HOLEIDs = get_holeids()
-    kernel = GPy.kern.Matern52(3, ARD=True)
+    kernel = GPy.kern.RBF(3, ARD=True)
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs[:8], 8, 'sgpr', kernel)
-    print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 7, 'sgpr', kernel, transform=True)
+    print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
 
     # exportar los datos
-    outfile_name = 'mp_test_'+'all_6'+'.csv'
     path_estimacion = 'estimaciones/'
+    outfile_name = 'mp_test_' + 'all_2_transformed' + '.csv'
     outfile = open(path_estimacion + outfile_name, 'w')
     outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    for holeid in HOLEIDs[:8]:
+    for holeid in HOLEIDs:
         pozo = get_pozo_holeid(holeid)
         for i, fila in enumerate(pozo):
             line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
             outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
     outfile.close()
+
+    # print('Se realiza estimacion con kernel RBF(ARD), parametros: )
+    # HOLEIDs = get_holeids()
+    # likelihood = GPy.likelihoods.
+    # laplace_inf = GPy.inference.latent_function_inference.Laplace()
+    # kernel = GPy.kern.RBF(3, ARD=True)
+    # t0 = time.time()
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 7, 'sgpr', kernel, transform=True)
+    # print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
+    #
+    # # exportar los datos
+    # path_estimacion = 'estimaciones/'
+    # outfile_name = 'mp_test_' + 'all_2_transformed' + '.csv'
+    # outfile = open(path_estimacion + outfile_name, 'w')
+    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    # for holeid in HOLEIDs:
+    #     pozo = get_pozo_holeid(holeid)
+    #     for i, fila in enumerate(pozo):
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i,], fila[5]
+    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    # outfile.close()

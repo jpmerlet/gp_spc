@@ -105,20 +105,20 @@ def _plot_f1(dicc, years):
     return f1_df
 
 
+path_estimacion = 'estimaciones/'
 # # ker: Matern32(3, ARD=True)
 # path_estimacion_5 = 'mp_test_all_5.csv'
 # dicc_5 = dicc_error_volumen(path_estimacion_5)
 
-# # ker: RBF(3, ARD=True)
-# path_estimacion_2 = 'mp_test_all_2.csv'
-# dicc_2 = dicc_error_volumen(path_estimacion_2)
+# ker: RBF(3, ARD=True)
+# est_2 = 'mp_test_all_2.csv'
+# dicc_2 = dicc_error_volumen(path_estimacion+est_2)
 #
 # # ker: sum_{i = 1}^3 RBF(x_i)
 # path_estimacion_4 = 'mp_test_all_4.csv'
 # dicc_4 = dicc_error_volumen(path_estimacion_4)
 
-# ker: Matern52(3, ARD=True)
-path_estimacion_6 = 'estimaciones/'
-est_6 = 'mp_test_all_6.csv'
-dicc_6 = dicc_error_volumen(path_estimacion_6+est_6)
+# ker: RBF(3, ARD=True)
+est_6 = 'mp_test_all_2_transformed.csv'
+dicc_6 = dicc_error_volumen(path_estimacion+est_6)
 plt.show()
