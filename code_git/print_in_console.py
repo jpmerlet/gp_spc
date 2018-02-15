@@ -1,4 +1,4 @@
-# Print iterations progress
+# Imprime progreso en consola
 from time import sleep
 
 
