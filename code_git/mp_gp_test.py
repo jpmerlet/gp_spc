@@ -140,11 +140,10 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
 
             if std == 1:
                 test_point_std = (test_point - X.mean()) / X.std()
-
             else:
                 print('std debe ser 0 o 1.')
+
             if modelo == 'sgpr':
-                # m = GPy.models.SparseGPRegression(X,y,ker)
                 if transform:
                     y_cox, lmbda = stats.boxcox(y)  # transformamos el dato sin estandarizar
                     modelo = GPy.core.GP(X, y_cox, kernel=ker, likelihood=lik, inference_method=inf)
@@ -188,10 +187,8 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
                          suffix='Complete', length=50)
     out_q.put(dicc_preds)
 
-    return
 
-
-def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=33, transform=False, std=1,
+def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=50, transform=False, std=1,
                                       lik=GPy.likelihoods.Gaussian(),
                                       inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
     out_q = multiprocessing.Queue()
@@ -272,13 +269,15 @@ if __name__ == '__main__':
     # print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
     # HOLEIDs = get_holeids()
     # kernel = GPy.kern.RBF(3, ARD=True)
+    # dist = 70
+    # print('distancia de busqueda para entrenar: {}'.format(dist))
     # t0 = time.time()
-    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 7, 'sgpr', kernel)
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 4, 'sgpr', kernel, distancia=dist)
     # print('Tiempo para gp en paralelo: {}'.format(time.time()-t0))
     #
     # # exportar los datos
     # path_estimacion = 'estimaciones/'
-    # outfile_name = 'mp_test_'+'all_2'+'.csv'
+    # outfile_name = 'mp_test_'+'all_2_'+str(dist) + '.csv'
     # outfile = open(path_estimacion + outfile_name, 'w')
     # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
     # for holeid in HOLEIDs:
@@ -287,6 +286,27 @@ if __name__ == '__main__':
     #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
     #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
     # outfile.close()
+
+    print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
+    HOLEIDs = get_holeids()
+    kernel = GPy.kern.RBF(3, ARD=True)
+    dist = 40
+    print('distancia de busqueda para entrenar: {}'.format(dist))
+    t0 = time.time()
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 4, 'sgpr', kernel, distancia=dist)
+    print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
+
+    # exportar los datos
+    path_estimacion = 'estimaciones/'
+    outfile_name = 'mp_test_' + 'all_2_' + str(dist) + '.csv'
+    outfile = open(path_estimacion + outfile_name, 'w')
+    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    for holeid in HOLEIDs:
+        pozo = get_pozo_holeid(holeid)
+        for i, fila in enumerate(pozo):
+            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
+            outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    outfile.close()
 
     # Modelo sobre todos los pozos
     # modelo: sgpr (Sparse Gaussian process)
@@ -391,24 +411,26 @@ if __name__ == '__main__':
     # lik: GPy.likelihoods.Gaussian()
     # ker: GPy.kern.RBF(3,ARD = True)
     # inf: GPy.inference.latent_function_inference.ExactGaussianInference()
-    print('Se realiza estimacion con kernel RBF(ARD), parametros: transform=True, std=0')
-    HOLEIDs = get_holeids()
-    kernel = GPy.kern.RBF(3, ARD=True)
-    t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 7, 'sgpr', kernel, transform=True)
-    print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
-
-    # exportar los datos
-    path_estimacion = 'estimaciones/'
-    outfile_name = 'mp_test_' + 'all_2_transformed' + '.csv'
-    outfile = open(path_estimacion + outfile_name, 'w')
-    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    for holeid in HOLEIDs:
-        pozo = get_pozo_holeid(holeid)
-        for i, fila in enumerate(pozo):
-            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
-            outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
-    outfile.close()
+    # print('Se realiza estimacion con kernel RBF(ARD), parametros: transform=True, std=0')
+    # HOLEIDs = get_holeids()
+    # kernel = GPy.kern.RBF(3, ARD=True)
+    # dist = 70
+    # print('distancia de busqueda para entrenar: {}'.format(dist))
+    # t0 = time.time()
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 4, 'sgpr', kernel, distancia=dist, transform=True)
+    # print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
+    #
+    # # exportar los datos
+    # path_estimacion = 'estimaciones/'
+    # outfile_name = 'mp_test_' + 'all_2_transformed_'+str(dist) + '.csv'
+    # outfile = open(path_estimacion + outfile_name, 'w')
+    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    # for holeid in HOLEIDs:
+    #     pozo = get_pozo_holeid(holeid)
+    #     for i, fila in enumerate(pozo):
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
+    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    # outfile.close()
 
     # print('Se realiza estimacion con kernel RBF(ARD), parametros: )
     # HOLEIDs = get_holeids()
