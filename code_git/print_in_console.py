@@ -1,4 +1,4 @@
-# Imprime progreso en consola
+# Imprime progreso en consola, esta linea es solo para probar conectividad
 from time import sleep
 
 
