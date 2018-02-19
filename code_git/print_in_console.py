@@ -1,4 +1,4 @@
-# Imprime progreso en consola
+# Imprime progreso en consola, esta linea es solo para probar conectividad
 from time import sleep
 
 
@@ -35,6 +35,6 @@ l = len(items)
 printProgressBar(0, l, prefix='Progress:', suffix='Complete', length=50)
 for i, item in enumerate(items):
     # Do stuff...
-    sleep(1)
+    sleep(0.1)
     # Update Progress Bar
     printProgressBar(i + 1, l, prefix='Progress:', suffix='Complete', length=50)
