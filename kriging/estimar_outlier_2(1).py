@@ -9,16 +9,14 @@ from common.discretize import *
 from common.rotation import *
 
 
-blockPath = '../../GP_Data/cy17_spc_assays_pvo_entry_ug.csv'
-# blockPath = '../../GP_Data/test_kriging.csv'
+blockPath = '../GP_Data/cy17_spc_assays_pvo_entry_ug.csv'
 ugVarBlock = 'ugcut'
-blockColumns = [(ugVarBlock, int), ('f1', str)]
+blockColumns = [(ugVarBlock, int), ('f1', str), ('cut', str)]
 
 var = 'cut'
 ugVarComp = 'ugcut'  # columna que contiene ug de los datos de sondaje
 compColumns = [(var, float), (ugVarComp, float)]
-compPath = '../../GP_Data/cy17_spc_assays_rl6_entry.csv'
-# compPath = '../../GP_Data/cy17_spc_au_rl6_entry.csv'
+compPath = '../GP_Data/cy17_spc_assays_rl6_entry.csv'
 
 outpath = 'modelo_estimado_sondaje_20.csv'
 
@@ -44,64 +42,55 @@ def run():
 def getModel(ug):
     # modelo de variograma
     if ug == 10:
-        # nugget = 0.250
-        nugget = 0
+        nugget = 0.250
         s1 = Structure(Structure.EXPONENTIAL, 0.480, Ellipsoid(19, 19, 19, 0, 0, 0))
         s2 = Structure(Structure.EXPONENTIAL, 0.270, Ellipsoid(436, 436, 436, 0, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 20:
         nugget = 0.250
-        #  nugget = 0
         s1 = Structure(Structure.EXPONENTIAL, 0.370, Ellipsoid(16, 22, 5, 20, 0, 0))
         s2 = Structure(Structure.EXPONENTIAL, 0.380, Ellipsoid(177, 97, 27, 20, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 30:
-        # nugget = 0.290
-        nugget = 0
+        nugget = 0.290
         s1 = Structure(Structure.SPHERIC, 0.320, Ellipsoid(47, 103, 20, 30, 0, 0))
         s2 = Structure(Structure.SPHERIC, 0.390, Ellipsoid(601, 500, 32, 30, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 40:
-        # nugget = 0.220
-        nugget = 0
+        nugget = 0.220
         s1 = Structure(Structure.SPHERIC, 0.420, Ellipsoid(55, 20, 11, 40, 0, 0))
         s2 = Structure(Structure.SPHERIC, 0.360, Ellipsoid(447, 183, 26, 40, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 50:
-        # nugget = 0.180
-        nugget = 0
+        nugget = 0.180
         s1 = Structure(Structure.SPHERIC, 0.390, Ellipsoid(16, 29, 11, 40, 0, 0))
         s2 = Structure(Structure.SPHERIC, 0.430, Ellipsoid(144, 93, 145, 40, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 51:
-        # nugget = 0.140
-        nugget = 0
+        nugget = 0.140
         s1 = Structure(Structure.SPHERIC, 0.390, Ellipsoid(14, 37, 28, 35, 0, 0))
         s2 = Structure(Structure.SPHERIC, 0.470, Ellipsoid(343, 183, 125, 35, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 60:
-        # nugget = 0.150
-        nugget = 0
+        nugget = 0.150
         s1 = Structure(Structure.SPHERIC, 0.550, Ellipsoid(14.8, 10.3, 11.9, 10, 0, 0))
         s2 = Structure(Structure.SPHERIC, 0.300, Ellipsoid(954.5, 98.9, 16337.9, 10, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 70:
-        # nugget = 0.150
-        nugget = 0
+        nugget = 0.150
         s1 = Structure(Structure.EXPONENTIAL, 0.444, Ellipsoid(18.6, 15.1, 18.1, 10, 0, 0))
         s2 = Structure(Structure.EXPONENTIAL, 0.406, Ellipsoid(18.8, 14.9, 208.9, 10, 0, 0))
         structures = [s1, s2]
         return Model(nugget, structures)
     elif ug == 71:
-        # nugget = 0.200
-        nugget = 0
+        nugget = 0.200
         s1 = Structure(Structure.EXPONENTIAL, 0.441, Ellipsoid(11.1, 7.9, 9.8, 20, 0, 0))
         s2 = Structure(Structure.EXPONENTIAL, 0.359, Ellipsoid(143.7, 161.0, 3777.8, 20, 0, 0))
         structures = [s1, s2]
@@ -165,14 +154,14 @@ def estimate(blocks, composites, ellipsoid, model):
 def exportBlockModel(blockModel):
     # Exportación modelo de bloques
     outfile = open(outpath, 'w')
-    outfile.write('x,y,z,grade,f1\n')
+    outfile.write('xcentre,ycentre,zcentre,cut_ok,f1,cut_poz\n')
 
     for block in blockModel:
         if hasattr(block, 'grade'):
-            line = block.x, block.y, block.z, block.grade, block['f1']
+            line = block.x, block.y, block.z, block.grade, block['f1'], block['cut']
         else:
-            line = block.x, block.y, block.z, -99, block['f1']
-        outfile.write("%f,%f,%f,%f,%s\n" % line)
+            line = block.x, block.y, block.z, -99, block['f1'], block['cut']
+        outfile.write("%f,%f,%f,%f,%s,%s\n" % line)
     outfile.close()
 
 
