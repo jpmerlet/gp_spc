@@ -11,27 +11,27 @@ import multiprocessing
 import math
 
 # se cargan los datos de entrenamiento
-train_data = pd.read_csv('../../GP_Data/cy17_spc_assays_rl6_entry.csv')
+train_data = pd.read_csv('../GP_Data/cy17_spc_assays_rl6_entry.csv')
 train_cols = ['midx', 'midy', 'midz', 'cut']
 
-test_data = pd.read_csv('../../GP_Data/cy17_spc_assays_pvo_entry.csv')
+test_data = pd.read_csv('../GP_Data/cy17_spc_assays_pvo_entry.csv')
 test_cols = ['midx', 'midy', 'midz']
 
 # se definen los estilos de los graficos
 # jtplot.style(theme='onedork',figsize = (16.5,12))
 
 
-class Timer(object):
-    def __init__(self, name=None):
-        self.name = name
-
-    def __enter__(self):
-        self.tstart = time.time()
-
-    def __exit__(self, type, value, traceback):
-        if self.name:
-            print('[%s]' % self.name, end=' ')
-        print('Elapsed: %s' % (time.time() - self.tstart))
+# class Timer(object):
+#     def __init__(self, name=None):
+#         self.name = name
+#
+#     def __enter__(self):
+#         self.tstart = time.time()
+#
+#     def __exit__(self, type, value, traceback):
+#         if self.name:
+#             print('[%s]' % self.name, end=' ')
+#         print('Elapsed: %s' % (time.time() - self.tstart))
 
 
 def get_holeids():
@@ -124,13 +124,16 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
     dicc_preds = {}
     for idx, idhole in enumerate(IDHOLEs):
         y_preds = list()
+        num_muestras = list()
         test_points = get_test_points_holeid(idhole)
         for test_point in test_points:
             X_df, y_df = get_trainingSet_by_point(test_point, distancia)
 
             if X_df.shape[0] < 10:
                 y_preds.extend(list(np.array([-99])))
+                num_muestras.append(0)
                 continue
+            num_muestras.append(X_df.shape[0])  # guardar nro muestras por test_point
 
             X = X_df[['midx', 'midy', 'midz']].as_matrix()
             y = y_df[['cut']].as_matrix()
@@ -181,7 +184,7 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
 
         # transformar restricciones en ndarray, just in case
         y_preds_ndarray = np.array(y_preds.copy())
-        dicc_preds[idhole] = y_preds_ndarray
+        dicc_preds[idhole] = (y_preds_ndarray, num_muestras)
         printProgressBar(idx + 1, n,
                          prefix='Current process: {}. Total Progress:'.format(getpid()),
                          suffix='Complete', length=50)
@@ -287,25 +290,26 @@ if __name__ == '__main__':
     #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
     # outfile.close()
 
-    print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
+    print('Se realiza estimacion con kernel RBF(3, ARD), parametros: default')
     HOLEIDs = get_holeids()
     kernel = GPy.kern.RBF(3, ARD=True)
-    dist = 40
+    dist = 33
     print('distancia de busqueda para entrenar: {}'.format(dist))
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 4, 'sgpr', kernel, distancia=dist)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
     print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
 
     # exportar los datos
     path_estimacion = 'estimaciones/'
     outfile_name = 'mp_test_' + 'all_2_' + str(dist) + '.csv'
     outfile = open(path_estimacion + outfile_name, 'w')
-    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1,muestras\n')
     for holeid in HOLEIDs:
         pozo = get_pozo_holeid(holeid)
         for i, fila in enumerate(pozo):
-            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
-            outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+            muestras = diccionario[holeid][1]
+            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][0][i, ], fila[5], muestras[i]
+            outfile.write('%f,%f,%f,%f,%f,%f,%f,%f\n' % line)
     outfile.close()
 
     # Modelo sobre todos los pozos

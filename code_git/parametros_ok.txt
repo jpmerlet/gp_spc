@@ -1,0 +1,5 @@
+major, medium, minor = 100, 100, 100
+bearing, plunge, dip = 0, 0, 0
+minSamples, maxSamples = 10, 25
+minSamplesByOctant, maxSamplesByOctant = 1, 100
+minOctantWithSamples, maxSamplesByDrillhole = 1, 100

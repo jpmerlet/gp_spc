@@ -14,16 +14,19 @@ def estimacion_by_point(modelo, ker, distancia=30, transform=False, std=1,
         y_preds = list()
         num_muestras = list()
         test_points = get_test_points_holeid(idhole)
-        for idx_muetra, test_point in enumerate(test_points):
+        print(test_points.shape[0])
+        for test_point in test_points:
             X_df, y_df = get_trainingSet_by_point(test_point, distancia)
 
             if X_df.shape[0] < 10:
                 y_preds.extend(list(np.array([-99])))
+                num_muestras.append(0)
                 continue
+            num_muestras.append(X_df.shape[0])  # guardar nro muestras por test_point
 
             X = X_df[['midx', 'midy', 'midz']].as_matrix()
             y = y_df[['cut']].as_matrix()
-            num_muestras[idx_muetra] = X.shape[0]  # guardar nro muestras por test_point
+
             X_std = (X - X.mean()) / X.std()
             y_std = (y - y.mean()) / y.std()
 
@@ -56,7 +59,6 @@ def estimacion_by_point(modelo, ker, distancia=30, transform=False, std=1,
             except np.linalg.LinAlgError:
                 print('La matriz definida por el kernel no es definida positiva')
                 pass
-            y_preds.extend(list(y_predicc * y.std() + y.mean()))
 
             if transform:
                 y_predicc_inv = inv_boxcox(y_predicc, lmb)
@@ -67,7 +69,6 @@ def estimacion_by_point(modelo, ker, distancia=30, transform=False, std=1,
         # transformar restricciones en ndarray, por si acaso
         y_preds_ndarray = np.array(y_preds.copy())
         dicc_preds[idhole] = (y_preds_ndarray, num_muestras)
-
         # se imprime
         printProgressBar(idx + 1, n, prefix='Progress:', suffix='Complete', length=50)
 
@@ -75,8 +76,10 @@ def estimacion_by_point(modelo, ker, distancia=30, transform=False, std=1,
 
 
 if __name__ == '__main__':
-
+    ######################################################
+    # kernel: RBF(3, ARD)
     HOLEIDs = get_holeids()
+    HOLEIDs = HOLEIDs[:1]
     kernel = GPy.kern.RBF(3, ARD=True)
     dist = 20
     diccionario = estimacion_by_point('sgpr', kernel, distancia=dist)
@@ -86,7 +89,7 @@ if __name__ == '__main__':
     outfile_name = 'gp_test_' + 'all_2_' + str(dist) + '.csv'
     outfile = open(path_estimacion + outfile_name, 'w')
     outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1,muestras\n')
-    for holeid in HOLEIDs:
+    for holeid in HOLEIDs[:1]:
         pozo = get_pozo_holeid(holeid)
         for i, fila in enumerate(pozo):
             muestras = diccionario[holeid][1][i]
