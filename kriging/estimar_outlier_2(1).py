@@ -52,7 +52,7 @@ def getModel(ug):
         return Model(nugget, structures)
     elif ug == 20:
         nugget = 0.250
-        #nugget = 0
+        #  nugget = 0
         s1 = Structure(Structure.EXPONENTIAL, 0.370, Ellipsoid(16, 22, 5, 20, 0, 0))
         s2 = Structure(Structure.EXPONENTIAL, 0.380, Ellipsoid(177, 97, 27, 20, 0, 0))
         structures = [s1, s2]
