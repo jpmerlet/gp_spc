@@ -1,4 +1,5 @@
-from mp_gp_test import *
+from code_git.mp_gp_test import *
+import GPy
 
 
 def estimacion_by_point(modelo, ker, distancia=30, transform=False, std=1,
