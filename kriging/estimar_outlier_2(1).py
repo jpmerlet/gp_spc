@@ -115,7 +115,7 @@ def estimate(blocks, composites, ellipsoid, model):
 
     kriging = PointKriging(ellipsoid, model)
 
-    cap = 2
+    cap = 5
 
     print('Estimando modelo de bloques:')
     for block in blocks:
@@ -154,7 +154,7 @@ def estimate(blocks, composites, ellipsoid, model):
 def exportBlockModel(blockModel):
     # Exportación modelo de bloques
     outfile = open(outpath, 'w')
-    outfile.write('xcentre,ycentre,zcentre,cut_ok,f1,cut_poz\n')
+    outfile.write('xcentre,ycentre,zcentre,cut,f1,cut_poz\n')
 
     for block in blockModel:
         if hasattr(block, 'grade'):
