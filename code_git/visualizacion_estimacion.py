@@ -115,12 +115,7 @@ def plotear_f1_ok(path_est):
     for year in years:
         df_by_year = estimacion_sorted.loc[estimacion_sorted['year'] == year]
         meses = df_by_year['mes']
-        seen = set()
-        MESES = []  # se eliminan los meses repetidos
-        for mes in meses:
-            if mes not in seen:
-                seen.add(mes)
-                MESES.append(mes)
+        MESES = sacar_repeticiones(meses)
         dicc_cuociente_mensual = dict()  # mes: cut_poz.mean()/cut.mean()
         for mes in MESES:
             cut_mes = df_by_year.loc[df_by_year['mes'] == mes]['cut_ok']
