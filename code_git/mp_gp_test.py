@@ -290,27 +290,27 @@ if __name__ == '__main__':
     #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
     # outfile.close()
 
-    print('Se realiza estimacion con kernel RBF(3, ARD), parametros: default')
-    HOLEIDs = get_holeids()
-    kernel = GPy.kern.RBF(3, ARD=True)
-    dist = 33
-    print('distancia de busqueda para entrenar: {}'.format(dist))
-    t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
-    print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
+    # print('Se realiza estimacion con kernel RBF(3, ARD), parametros: default')
+    # HOLEIDs = get_holeids()
+    # kernel = GPy.kern.RBF(3, ARD=True)
+    # dist = 33
+    # print('distancia de busqueda para entrenar: {}'.format(dist))
+    # t0 = time.time()
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
+    # print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
 
     # exportar los datos
-    path_estimacion = 'estimaciones/'
-    outfile_name = 'mp_test_' + 'all_2_' + str(dist) + '.csv'
-    outfile = open(path_estimacion + outfile_name, 'w')
-    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1,muestras\n')
-    for holeid in HOLEIDs:
-        pozo = get_pozo_holeid(holeid)
-        for i, fila in enumerate(pozo):
-            muestras = diccionario[holeid][1]
-            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][0][i, ], fila[5], muestras[i]
-            outfile.write('%f,%f,%f,%f,%f,%f,%f,%f\n' % line)
-    outfile.close()
+    # path_estimacion = 'estimaciones/'
+    # outfile_name = 'mp_test_' + 'all_2_' + str(dist) + '.csv'
+    # outfile = open(path_estimacion + outfile_name, 'w')
+    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1,muestras\n')
+    # for holeid in HOLEIDs:
+    #     pozo = get_pozo_holeid(holeid)
+    #     for i, fila in enumerate(pozo):
+    #         muestras = diccionario[holeid][1]
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][0][i, ], fila[5], muestras[i]
+    #         outfile.write('%f,%f,%f,%f,%f,%f,%f,%f\n' % line)
+    # outfile.close()
 
     # Modelo sobre todos los pozos
     # modelo: sgpr (Sparse Gaussian process)
@@ -386,29 +386,30 @@ if __name__ == '__main__':
     # modelo: sgpr (Sparse Gaussian process)
     # ker: Matern52(3, ARD=True)
 
-    # HOLEIDs = get_holeids()
-    # kernel = GPy.kern.Matern52(3, ARD=True)
-    # t0 = time.time()
-    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs[:8], 8, 'sgpr', kernel)
-    # print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
-    #
-    # # exportar los datos
-    # outfile_name = 'mp_test_'+'all_6'+'.csv'
-    # path_estimacion = 'estimaciones/'
-    # outfile = open(path_estimacion + outfile_name, 'w')
-    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    # for holeid in HOLEIDs[:8]:
-    #     pozo = get_pozo_holeid(holeid)
-    #     for i, fila in enumerate(pozo):
-    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
-    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
-    # outfile.close()
-    #
+    HOLEIDs = get_holeids()
+    kernel = GPy.kern.Matern52(3, ARD=True)
+    dist = 20
+    t0 = time.time()
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
+    print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
+
+    # exportar los datos
+    outfile_name = 'mp_test_'+'all_6_'+str(dist)+'.csv'
+    path_estimacion = 'estimaciones/'
+    outfile = open(path_estimacion + outfile_name, 'w')
+    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1,muestras\n')
+    for holeid in HOLEIDs:
+        pozo = get_pozo_holeid(holeid)
+        for i, fila in enumerate(pozo):
+            muestras = diccionario[holeid][1]
+            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][0][i, ], fila[5], muestras[i]
+            outfile.write('%f,%f,%f,%f,%f,%f,%f,%f\n' % line)
+    outfile.close()
 
     ####################################################################
     # Ahora se prueba el mismo kernel RBF(3, ARD) con box-cox
     ####################################################################
-    #
+
     # Modelo sobre todos los pozos
     # modelo: sgpr (Sparse Gaussian process)
     # transform: False
