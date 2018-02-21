@@ -6,7 +6,7 @@ if __name__ == '__main__':
 
     # se generan los dataFrame con las dos estimaciones ordenadas por f1
     df_est_gp = add_year_month_sorted(path_est_gp)
-    df_est_ok = add_year_month_sorted_ok(path_est_ok)
+    df_est_ok = add_year_month_sorted(path_est_ok)
 
     print('cantidad de filas en ok:{}\ncantidad de filas en gp:{}'.format(df_est_ok.shape[0], df_est_gp.shape[0]))
 
