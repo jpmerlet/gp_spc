@@ -96,7 +96,7 @@ def plotear_f1(path_est):
     return dicc_anual
 
 
-def plot_errores(path_est):
+def plot_errores(path_est, plot_reg = False):
 
     # se grafican los errores para analisis
     df_estimaciones = pd.read_csv(path_est)
@@ -108,14 +108,17 @@ def plot_errores(path_est):
     cut_poz = estimacion_filtrada['cut_poz'].as_matrix()
     cut_est = estimacion_filtrada['cut'].as_matrix()
     error = 2*np.divide(np.absolute(cut_poz-cut_est), cut_poz + cut_est)
+    AMPRD90 = np.percentile(error, 90)
     r2 = r2_score(cut_poz, cut_est)
-    print('r2_socore para gp (muestras filtradas por f1 y punto estimado):{}'.format(r2))
+    print('r2_score: {}'.format(r2))
+    print('AMPRD90: {}'.format(AMPRD90))
 
-    plt.figure()
-    plt.scatter(cut_est, cut_poz)
-    plt.xlabel('Estimacion')
-    plt.ylabel('Valor de pozo')
-    plt.title('Estimaciones gp vs Valor de pozo')
+    if plot_reg:
+        plt.figure()
+        plt.scatter(cut_est, cut_poz)
+        plt.xlabel('Estimacion')
+        plt.ylabel('Valor de pozo')
+        plt.title('Estimaciones gp vs Valor de pozo')
 
 
 def r2_gp_by_f1(path_est):
@@ -165,13 +168,21 @@ if __name__ == '__main__':
     # dicc_4 = plotear_f1(path_estimacion_4)
 
     # ker: Matern52(3, ARD=True)
-    est_6 = 'mp_test_all_6.csv'
-    dicc_6 = plotear_f1(path_estimacion+est_6)  # correr con todos los holeids
+    est_6 = path_estimacion + 'mp_test_all_6_20.csv'
+    dicc_6 = plotear_f1(est_6)  # correr con todos los holeids
 
     # se grafican los resultados de kriging
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
     plotear_f1(est_ok)
-    r2_gp_by_f1(est_2)
+
+    print('analisis gp:RBF(3, ARD)')
     plot_errores(est_2)
+    print('########################')
+    print('analisis gp:Matern52(3, ARD)')
+    plot_errores(est_6)
+    print('########################')
+    print('analisis ok:')
     plot_errores(est_ok)
+    print('########################')
+    r2_gp_by_f1(est_2)
     plt.show()
