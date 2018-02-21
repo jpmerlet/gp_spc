@@ -388,13 +388,13 @@ if __name__ == '__main__':
 
     HOLEIDs = get_holeids()
     kernel = GPy.kern.Matern52(3, ARD=True)
-    dist = 20
+    dist = 15
     t0 = time.time()
     diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
     print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
 
     # exportar los datos
-    outfile_name = 'mp_test_'+'all_6_'+str(dist)+'.csv'
+    outfile_name = 'mp_gp_'+kernel.name + '_' + str(dist)+'.csv'
     path_estimacion = 'estimaciones/'
     outfile = open(path_estimacion + outfile_name, 'w')
     outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1,muestras\n')
