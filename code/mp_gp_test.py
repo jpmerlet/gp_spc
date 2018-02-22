@@ -12,27 +12,14 @@ import multiprocessing
 import math
 
 # se cargan los datos de entrenamiento
-train_data = pd.read_csv('../../GP_Data/cy17_spc_assays_rl6_entry.csv')
+train_data = pd.read_csv('../GP_Data/cy17_spc_assays_rl6_entry.csv')
 train_cols = ['midx', 'midy', 'midz', 'cut']
 
-test_data = pd.read_csv('../../GP_Data/cy17_spc_assays_pvo_entry.csv')
+test_data = pd.read_csv('../GP_Data/cy17_spc_assays_pvo_entry.csv')
 test_cols = ['midx', 'midy', 'midz']
 
 # se definen los estilos de los graficos
 # jtplot.style(theme='onedork',figsize = (16.5,12))
-
-
-class Timer(object):
-    def __init__(self, name=None):
-        self.name = name
-
-    def __enter__(self):
-        self.tstart = time.time()
-
-    def __exit__(self, type, value, traceback):
-        if self.name:
-            print('[%s]' % self.name, end=' ')
-        print('Elapsed: %s' % (time.time() - self.tstart))
 
 
 def get_holeids():
@@ -215,10 +202,6 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
         test_points = get_test_points_holeid(idhole)
         for test_point in test_points:
             X_df, y_df = get_trainingSet_by_point(test_point, distancia)
-
-            # while X_df.shape[0] < 20:
-            #     distancia_aumentada = 5 + distancia
-            #     X_df, y_df = get_trainingSet_by_point(test_point, distancia_aumentada)
             if X_df.shape[0] < 10:
                 y_preds.extend(list(np.array([-99])))
                 continue
@@ -268,9 +251,6 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
         # transformar restricciones en ndarray, por sia caso
         y_preds_ndarray = np.array(y_preds.copy())
         dicc_preds[idhole] = y_preds_ndarray
-        # printProgressBar(i + 1, n,
-        #               prefix='Current HOLEID: {}. Total Progress:'.format(HOLEIDs[(i + 1) * (i < n - 1)]),
-        #               suffix='Complete', length=50)
         printProgressBar(idx + 1, n,
                          prefix='Current process: {}. Total Progress:'.format(getpid()),
                          suffix='Complete', length=50)
@@ -279,7 +259,7 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
     return
 
 
-def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=33, transform=False):
+def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=35, transform=False):
     out_q = multiprocessing.Queue()
     chuncksize = int(math.ceil(len(IDHOLEs) / float(nprocs)))
     procs = []
@@ -354,24 +334,23 @@ if __name__ == '__main__':
     # lik: GPy.likelihoods.Gaussian()
     # ker: GPy.kern.RBF(3,ARD = True)
     # inf: GPy.inference.latent_function_inference.ExactGaussianInference()
-
-    # HOLEIDs = get_holeids()
-    # kernel = GPy.kern.RBF(3,ARD=True)
-    # t0 = time.time()
-    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel)
-    # print('Tiempo para gp en paralelo: {}'.format(time.time()-t0))
+    HOLEIDs = get_holeids()
+    kernel = GPy.kern.RBF(3, ARD=True)
+    t0 = time.time()
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel)
+    print('Tiempo para gp en paralelo: {}'.format(time.time()-t0))
 
     # exportar los datos
-    # outfile_name = 'mp_test_'+'all_2'+'.csv'
-    # outfile = open(outfile_name, 'w')
-    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    # for holeid in HOLEIDs:
-    #     pozo = get_pozo_holeid(holeid)
-    #    for i, fila in enumerate(pozo):
-    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i,], fila[5]
-    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
-    # outfile.close()
-
+    path_estimacion = '../code_git/estimaciones/'
+    outfile_name = 'mp_test_'+'all_2_35'+'.csv'  # se corre para ver si el de code_git tiene algun bug en predecir
+    outfile = open(path_estimacion + outfile_name, 'w')
+    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    for holeid in HOLEIDs:
+        pozo = get_pozo_holeid(holeid)
+        for i, fila in enumerate(pozo):
+            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
+            outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    outfile.close()
     # Modelo sobre todos los pozos
     # modelo: sgpr (Sparse Gaussian process)
     # transform: False
@@ -446,19 +425,19 @@ if __name__ == '__main__':
     # modelo: sgpr (Sparse Gaussian process)
     # ker: Matern52(3, ARD=True)
 
-    HOLEIDs = get_holeids()
-    kernel = GPy.kern.Matern52(3, ARD=True)
-    t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel)
-    print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
+    # HOLEIDs = get_holeids()
+    # kernel = GPy.kern.Matern52(3, ARD=True)
+    # t0 = time.time()
+    # diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel)
+    # print('Tiempo para gp con multiprocessing: {}'.format(time.time()-t0))
 
-    # exportar los datos
-    outfile_name = 'mp_test_'+'all_6'+'.csv'
-    outfile = open(outfile_name, 'w')
-    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    for holeid in HOLEIDs:
-        pozo = get_pozo_holeid(holeid)
-        for i, fila in enumerate(pozo):
-            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
-            outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
-    outfile.close()
+    # # exportar los datos
+    # outfile_name = 'mp_test_'+'all_6'+'.csv'
+    # outfile = open(outfile_name, 'w')
+    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    # for holeid in HOLEIDs:
+    #     pozo = get_pozo_holeid(holeid)
+    #     for i, fila in enumerate(pozo):
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
+    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    # outfile.close()
