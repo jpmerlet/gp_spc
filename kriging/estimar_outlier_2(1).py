@@ -18,7 +18,7 @@ ugVarComp = 'ugcut'  # columna que contiene ug de los datos de sondaje
 compColumns = [(var, float), (ugVarComp, float)]
 compPath = '../GP_Data/cy17_spc_assays_rl6_entry.csv'
 
-outpath = 'modelo_estimado_sondaje_20.csv'
+outpath = 'modelo_estimado_ok.csv'
 
 
 def run():
