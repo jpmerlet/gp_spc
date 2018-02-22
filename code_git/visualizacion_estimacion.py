@@ -73,41 +73,102 @@ def sacar_repeticiones(iterable):
 
 def plotear_f1(list_paths):
     n = len(list_paths)
-    fig, axes = plt.subplots(nrows=n, ncols=1)
+    # noinspection PyTypeChecker
+    fig, axes = plt.subplots(nrows=n, ncols=1, sharey=True)
     for i in range(n):
         estimacion_sorted = add_year_month_sorted(list_paths[i])
         YEARS = get_years(list_paths[i])
-        dicc_anual = dict()
+        dicc_anual_f1 = dict()
+        dicc_anual_muestras = dict()
+        columnas = []
         for year in YEARS:
             df_by_year = estimacion_sorted.loc[estimacion_sorted['year'] == year]
+            columnas = list(df_by_year.columns)
             meses = df_by_year['mes']
-            MESES = sacar_repeticiones(meses)
+            seen = set()
+            MESES = []  # se eliminan los meses repetidos
+            for mes in meses:
+                if mes not in seen:
+                    seen.add(mes)
+                    MESES.append(mes)
             dicc_cuociente_mensual = dict()  # mes: cut_poz.mean()/cut.mean()
+            dicc_promedio_mensual = dict()  # mes: muestras.mean()
             for mes in MESES:
                 cut_mes = df_by_year.loc[df_by_year['mes'] == mes]['cut']
                 cut_poz_mes = df_by_year.loc[df_by_year['mes'] == mes]['cut_poz']
                 cuociente = np.divide(cut_poz_mes.mean(), cut_mes.mean())
                 dicc_cuociente_mensual[mes] = cuociente
-            dicc_anual[year] = dicc_cuociente_mensual
+                if 'muestras' in list(df_by_year.columns):  # solo funcionara en gp
+                    num_muestras_mes = df_by_year.loc[df_by_year['mes'] == mes]['muestras']
+                    mean_muestras_mes = num_muestras_mes.mean()
+                    dicc_promedio_mensual[mes] = mean_muestras_mes
 
-        _plot_f1(dicc_anual, YEARS, i, axes)
+            dicc_anual_f1[year] = dicc_cuociente_mensual
+            dicc_anual_muestras[year] = dicc_promedio_mensual
+        if 'muestras' in columnas:
+            _plot_f1(list_paths[i], dicc_anual_f1, YEARS, i, axes, dicc_anual_muestras)
+        else:
+            _plot_f1(list_paths[i], dicc_anual_f1, YEARS, i, axes)
 
 
-def _plot_f1(dicc, years, i, ejes):
-    df_dicc = pd.DataFrame.from_dict(dicc)
-    f1 = df_dicc[years[0]]
-    for year in years[1:]:
-        f1 = pd.concat([f1, df_dicc[year]], names=['f1'])
+def _plot_f1(path_name, dicc_f1, years, i, ejes, dicc_muestras=None):
+    if dicc_muestras is not None:
+        axis = ejes[i, ]
+        df_dicc_f1 = pd.DataFrame.from_dict(dicc_f1)
+        df_dicc_muestras = pd.DataFrame.from_dict(dicc_muestras)
+        f1 = df_dicc_f1[years[0]]
+        muestras = df_dicc_muestras[years[0]]
+        for year in years[1:]:
+            f1 = pd.concat([f1, df_dicc_f1[year]], names=['f1'])
+            muestras = pd.concat([muestras, df_dicc_muestras[year]], names=['f1'])
+        # return f1, muestras
+        f1 = f1.dropna()  # elimina todas las filas con Nan
+        muestras = muestras.dropna()
+        f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
+                                                                 periods=f1.shape[0], freq='MS'))
+        muestras_df = pd.DataFrame(muestras.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
+                                                                             periods=muestras.shape[0], freq='MS'))
+        # agregar cantidad de muestras en pomedio utilizadas por mes
+        axis_muestras = axis.twinx()
+        muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
+        axis_muestras.set_ylim(10, 25)
 
-    f1 = f1.dropna()  # elimina todas las filas con Nan
-    f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
-                                                             periods=f1.shape[0], freq='MS'))
-    f1_df.columns = ['f1']
-    axis = ejes[i, ]
-    f1_df.plot(style='bo-', ax=axis)
-    axis.axhline(y=1.1, color='g', linestyle='-')
-    axis.axhline(y=0.9, color='g', linestyle='-')
-    return f1_df
+        # graficar f1 en meses
+        f1_df.columns = ['f1']
+        muestras_df.columns = ['muestras']
+        # f1_df.plot(style='bo-', ax=axis, legend=False)
+        axis.plot(f1_df['f1'].as_matrix(), 'bo-')
+
+        # agregar cantidad de muestras en pomedio utilizadas por mes
+        axis_muestras = axis.twinx()
+        muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
+        axis_muestras.set_ylim(10, 25)
+
+        # se agregan los margenes para el f1
+        axis.axhline(y=1.1, color='g', linestyle='-')
+        axis.axhline(y=0.9, color='g', linestyle='-')
+
+        # a partir del nombre del archivo se recupera el nombre del kernel y la distancia de busqueda
+        groups = path_name.split('_')
+        ker_name = groups[2]
+        distancia = groups[3].split('.')[0]
+        axis.set_title('Kernel:{}, distancia:{}'.format(ker_name, distancia))
+
+    else:
+        axis = ejes[i, ]
+        df_dicc_f1 = pd.DataFrame.from_dict(dicc_f1)
+        f1 = df_dicc_f1[years[0]]
+        for year in years[1:]:
+            f1 = pd.concat([f1, df_dicc_f1[year]], names=['f1'])
+        # return f1, muestras
+        f1 = f1.dropna()  # elimina todas las filas con Nan
+        f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
+                                                                 periods=f1.shape[0], freq='MS'))
+
+        f1_df.columns = ['f1']
+        f1_df.plot(style='bo-', ax=axis)
+        axis.axhline(y=1.1, color='g', linestyle='-')
+        axis.axhline(y=0.9, color='g', linestyle='-')
 
 
 def plot_errores_lista(lists_path, plot_reg=False):
@@ -117,7 +178,12 @@ def plot_errores_lista(lists_path, plot_reg=False):
         print('####################')
         print(lists_path[i])
         errores = plot_errores(df_est, plot_reg)
-        plt.plot(range(len(errores)), errores)
+        path_name = lists_path[i]
+        groups = path_name.split('_')
+        ker_name = groups[2]
+        distancia = groups[3].split('.')[0]
+        plt.plot(range(len(errores)), errores, label=ker_name + ',' + 'dist:' + distancia)
+        plt.legend()
 
 def plot_errores(df_estimaciones, plot):
 
@@ -169,33 +235,42 @@ if __name__ == '__main__':
     # dist:20
     est_2 = path_estimacion + 'mp_test_all_2.csv'
 
+    # ker: RBF(3, ARD=True)
+    # dist:35
+    est_2 = path_estimacion + 'mp_test_all_2_35.csv'
+
     # ker: Matern52(3, ARD=True)
     # dist:20
     est_6_20 = path_estimacion + 'mp_test_all_6_20.csv'
 
     # ker: Matern52(3, ARD=True)
     # dist:20
-    est_Mat52_20 = path_estimacion + 'mp_gp_MAt52_20.csv'
+    est_Mat52_20 = path_estimacion + 'mp_gp_Mat52_20.csv'
 
     # ker: Matern52(3, ARD=True)
     # dist:15
-    est_Mat52_15 = path_estimacion + 'mp_gp_MAt52_15.csv'
+    est_Mat52_15 = path_estimacion + 'mp_gp_Mat52_15.csv'
 
     # ker: Matern52(3, ARD=True)
     # dist:25
-    est_Mat52_25 = path_estimacion + 'mp_gp_MAt52_25.csv'
+    est_Mat52_25 = path_estimacion + 'mp_gp_Mat52_25.csv'
 
     # ker: Matern52(3, ARD=True)
+    # dist:30
+    est_Mat52_30 = path_estimacion + 'mp_gp_Mat52_30.csv'
+
+    # ker: Mat32(3, ARD=True)
     # dist:33
-    est_6_33 = path_estimacion + 'mp_test_all_6_33.csv'
+    est_Mat32_35 = path_estimacion + 'mp_gp_Mat32_35.csv'
 
     # se grafican los resultados de kriging
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
 
-    paths_list = [est_2, est_Mat52_20, est_Mat52_20, est_Mat52_15, est_ok]
+    # paths_list = [est_2, est_Mat52_25, est_Mat52_30, est_ok]
+    paths_list = [est_Mat52_30, est_ok]
     plotear_f1(paths_list)
     plt.figure()
-    plot_errores_lista(paths_list[:4])
+    plot_errores_lista(paths_list[:5])
 
     r2_gp_by_f1(est_2)
     plt.show()

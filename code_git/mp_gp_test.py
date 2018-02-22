@@ -272,7 +272,7 @@ if __name__ == '__main__':
     print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
     HOLEIDs = get_holeids()
     kernel = GPy.kern.RBF(3, ARD=True)
-    dist = 30
+    dist = 35
     print('distancia de busqueda para entrenar: {}'.format(dist))
     t0 = time.time()
     diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
@@ -290,7 +290,6 @@ if __name__ == '__main__':
             line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][0][i, ], fila[5], muestras[i]
             outfile.write('%f,%f,%f,%f,%f,%f,%f,%f\n' % line)
     outfile.close()
-
     # print('Se realiza estimacion con kernel RBF(3, ARD), parametros: default')
     # HOLEIDs = get_holeids()
     # kernel = GPy.kern.RBF(3, ARD=True)
