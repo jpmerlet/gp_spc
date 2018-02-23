@@ -3,6 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import copy as cp
 from sklearn.metrics import r2_score
+import matplotlib.dates as mdates
+years = mdates.YearLocator()   # every year
+months = mdates.MonthLocator()  # every month
+yearsFmt = mdates.DateFormatter('%Y')
 
 
 def get_years(path_est):
@@ -129,20 +133,19 @@ def _plot_f1(path_name, dicc_f1, years, i, ejes, dicc_muestras=None):
         muestras_df = pd.DataFrame(muestras.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
                                                                              periods=muestras.shape[0], freq='MS'))
         # agregar cantidad de muestras en pomedio utilizadas por mes
-        axis_muestras = axis.twinx()
-        muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
-        axis_muestras.set_ylim(10, 25)
+        # axis_muestras = axis.twinx()
+        # muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
+        # axis_muestras.set_ylim(10, 25)
 
         # graficar f1 en meses
         f1_df.columns = ['f1']
-        muestras_df.columns = ['muestras']
-        # f1_df.plot(style='bo-', ax=axis, legend=False)
-        axis.plot(f1_df['f1'].as_matrix(), 'bo-')
+        f1_df.plot(style='bo-', ax=axis, legend=False)
+        # axis.plot(f1_df['f1'].as_matrix(), 'bo-')
 
         # agregar cantidad de muestras en pomedio utilizadas por mes
-        axis_muestras = axis.twinx()
-        muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
-        axis_muestras.set_ylim(10, 25)
+        # axis_muestras = axis.twinx()
+        # muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
+        # axis_muestras.set_ylim(10, 25)
 
         # se agregan los margenes para el f1
         axis.axhline(y=1.1, color='g', linestyle='-')
@@ -263,11 +266,15 @@ if __name__ == '__main__':
     # dist:33
     est_Mat32_35 = path_estimacion + 'mp_gp_Mat32_35.csv'
 
+    # ker: Mat32(3, ARD=True)
+    # dist:33
+    est_rbf_33 = path_estimacion + 'mp_gpUg_rbf_33.csv'
+
     # se grafican los resultados de kriging
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
 
     # paths_list = [est_2, est_Mat52_25, est_Mat52_30, est_ok]
-    paths_list = [est_Mat52_30, est_ok]
+    paths_list = [est_rbf_33, est_Mat52_30, est_ok]
     plotear_f1(paths_list)
     plt.figure()
     plot_errores_lista(paths_list[:5])
