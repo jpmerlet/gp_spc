@@ -8,7 +8,6 @@ import scipy.spatial as spatial
 import multiprocessing
 import math
 
-
 # se cargan los datos de entrenamiento
 train_data = pd.read_csv('../GP_Data/cy17_spc_assays_rl6_entry.csv')
 
@@ -20,6 +19,7 @@ train_data = train_data.loc[train_data['ugcut'] >= 10]
 test_data = test_data.loc[test_data['ugcut'] >= 10]
 
 ugs = [10, 20, 30, 40, 50, 51, 60, 61, 70, 71, 80]
+
 
 # se definen los estilos de los graficos
 # jtplot.style(theme='onedork',figsize = (16.5,12))
@@ -78,8 +78,10 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         print()
 
 
-def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, lik=GPy.likelihoods.Gaussian(),
+def estimation_by_point_mp(IDHOLEs, out_q, model, ker, distancia, lik=GPy.likelihoods.Gaussian(),
                            inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
+    # def estimation_by_point_mp(IDHOLEs, model, ker, distancia, lik=GPy.likelihoods.Gaussian(),
+    #                            inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
     n = len(IDHOLEs)
     dicc_preds = {}
     for idx, idhole in enumerate(IDHOLEs):
@@ -118,7 +120,7 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, lik=GPy.likel
 
             test_point_std = test_point_zeros
 
-            if modelo == 'sgpr':
+            if model == 'sgpr':
                 modelo = GPy.core.GP(X_std, y_std, kernel=ker, likelihood=lik, inference_method=inf)
 
             else:
@@ -126,20 +128,7 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, lik=GPy.likel
             y_predicc = -99
             try:
                 modelo.optimize(messages=False, max_f_eval=1000)
-                y_predicc, _ = modelo.predict([[test_point_std[0],
-                                                test_point_std[1],
-                                                test_point_std[2],
-                                                test_point_std[3],
-                                                test_point_std[4],
-                                                test_point_std[5],
-                                                test_point_std[6],
-                                                test_point_std[7],
-                                                test_point_std[8],
-                                                test_point_std[9],
-                                                test_point_std[10],
-                                                test_point_std[11],
-                                                test_point_std[12],
-                                                test_point_std[13]]])
+                y_predicc, _ = modelo.predict(test_point_std)
 
             except GPy.util.linalg.linalg.LinAlgError as err:
                 if 'not positive definite' in err.message:
@@ -156,19 +145,19 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, lik=GPy.likel
         printProgressBar(idx + 1, n,
                          prefix='Current process: {}. Total Progress:'.format(getpid()),
                          suffix='Complete', length=50)
-    out_q.put(dicc_preds)
 
-    return
+    # return dicc_preds
+    return out_q.put(dicc_preds)
 
 
-def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=35):
+def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, model, ker, distancia=35):
     out_q = multiprocessing.Queue()
     chuncksize = int(math.ceil(len(IDHOLEs) / float(nprocs)))
     procs = []
     for idx in range(nprocs):
         p = multiprocessing.Process(target=estimation_by_point_mp,
                                     args=(IDHOLEs[chuncksize * idx:chuncksize * (idx + 1)],
-                                          out_q, modelo, ker, distancia))
+                                          out_q, model, ker, distancia))
         procs.append(p)
         p.start()
 
@@ -184,20 +173,21 @@ def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=35
 if __name__ == '__main__':
     HOLEIDs = get_holeids()
     kernel = GPy.kern.RBF(input_dim=3, active_dims=[0, 1, 2], ARD=True) + GPy.kern.RBF(input_dim=1, active_dims=[3]) * \
-             GPy.kern.RBF(input_dim=1, active_dims=[4])
+                                                                          GPy.kern.RBF(input_dim=1, active_dims=[4])
     dist = 33
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs[:1], 8, 'sgpr', kernel, distancia=dist)
+    # diccionario = estimation_by_point_mp(HOLEIDs[:1], 'sgpr', kernel, dist)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 2, 'sgpr', kernel, distancia=dist)
     print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
 
     # exportar los datos
-    path_estimacion = '../code_git/estimaciones/'
-    outfile_name = 'mp_gp2Ug_' + kernel.name + '_' + str(dist) + '.csv'
-    outfile = open(path_estimacion + outfile_name, 'w')
-    outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
-    for holeid in HOLEIDs[:1]:
-        pozo = get_pozo_holeid(holeid)
-        for i, fila in enumerate(pozo):
-            line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
-            outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
-    outfile.close()
+    # path_estimacion = '../code_git/estimaciones/'
+    # outfile_name = 'mp_gp2Ug_' + kernel.name + '_' + str(dist) + '.csv'
+    # outfile = open(path_estimacion + outfile_name, 'w')
+    # outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
+    # for holeid in HOLEIDs[:1]:
+    #     pozo = get_pozo_holeid(holeid)
+    #     for i, fila in enumerate(pozo):
+    #         line = fila[0], fila[1], fila[2], fila[3], fila[4], diccionario[holeid][i, ], fila[5]
+    #         outfile.write('%f,%f,%f,%f,%f,%f,%f\n' % line)
+    # outfile.close()
