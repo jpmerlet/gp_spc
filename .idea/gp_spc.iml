@@ -9,7 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/kriging/kriging" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/kriging/variogram" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.6.1 (~/anaconda3/bin/python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">
