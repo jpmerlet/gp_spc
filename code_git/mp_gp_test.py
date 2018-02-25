@@ -117,7 +117,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         print()
 
 
-def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, std, lik, inf):
+def estimation_by_point_mp(IDHOLEs, out_q, model, ker, distancia, transform, std, lik, inf):
     # distancia a la que se buscan muestras (quizas es mejor tomar la minima necesaria?)
     global lmbda
     n = len(IDHOLEs)
@@ -146,14 +146,12 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
             else:
                 print('std debe ser 0 o 1.')
 
-            if modelo == 'sgpr':
+            if model == 'sgpr':
                 if transform:
                     y_cox, lmbda = stats.boxcox(y)  # transformamos el dato sin estandarizar
                     modelo = GPy.core.GP(X, y_cox, kernel=ker, likelihood=lik, inference_method=inf)
                 else:
-                    modelo = GPy.core.GP(X_std, y_std, kernel=ker,
-                                         likelihood=lik,
-                                         inference_method=inf)
+                    modelo = GPy.core.GP(X_std, y_std, kernel=ker, likelihood=lik, inference_method=inf)
 
             else:
                 modelo = GPy.models.GPRegression(X, y, ker)
@@ -162,12 +160,12 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
                 modelo.optimize(messages=False, max_f_eval=1000)
                 if transform:
                     y_predicc, _ = modelo.predict(np.array([[test_point[0],
-                                                             test_point[1],
-                                                             test_point[2]]]))
+                                                            test_point[1],
+                                                            test_point[2]]]))
                 else:
                     y_predicc, _ = modelo.predict(np.array([[test_point_std[0],
-                                                             test_point_std[1],
-                                                             test_point_std[2]]]))
+                                                            test_point_std[1],
+                                                            test_point_std[2]]]))
 
             except GPy.util.linalg.linalg.LinAlgError as err:
                 if 'not positive definite' in err.message:
@@ -185,13 +183,12 @@ def estimation_by_point_mp(IDHOLEs, out_q, modelo, ker, distancia, transform, st
         # transformar restricciones en ndarray, just in case
         y_preds_ndarray = np.array(y_preds.copy())
         dicc_preds[idhole] = (y_preds_ndarray, num_muestras)
-        printProgressBar(idx + 1, n,
-                         prefix='Current process: {}. Total Progress:'.format(getpid()),
+        printProgressBar(idx + 1, n, prefix='Current process: {}. Total Progress:'.format(getpid()),
                          suffix='Complete', length=50)
     out_q.put(dicc_preds)
 
 
-def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=50, transform=False, std=1,
+def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, model, ker, distancia=50, transform=False, std=1,
                                       lik=GPy.likelihoods.Gaussian(),
                                       inf=GPy.inference.latent_function_inference.ExactGaussianInference()):
     out_q = multiprocessing.Queue()
@@ -200,7 +197,7 @@ def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, modelo, ker, distancia=50
     for idx in range(nprocs):
         p = multiprocessing.Process(target=estimation_by_point_mp,
                                     args=(IDHOLEs[chuncksize * idx:chuncksize * (idx + 1)],
-                                          out_q, modelo, ker, distancia, transform, std,
+                                          out_q, model, ker, distancia, transform, std,
                                           lik, inf))
         procs.append(p)
         p.start()
@@ -271,11 +268,11 @@ if __name__ == '__main__':
     # inf: GPy.inference.latent_function_inference.ExactGaussianInference()
     print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
     HOLEIDs = get_holeids()
-    kernel = GPy.kern.RBF(3, ARD=True)
+    kernel = GPy.kern.RBF(3, ARD=True) + GPy.kern.Linear(3)
     dist = 35
     print('distancia de busqueda para entrenar: {}'.format(dist))
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 2, 'sgpr', kernel, distancia=dist)
     print('Tiempo para gp en paralelo: {}'.format(time.time()-t0))
 
     # exportar los datos
