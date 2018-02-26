@@ -3,12 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="aae0be0b-7c71-43a4-aea0-7fb5ffa7f12e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/gp_spc.iml" afterPath="$PROJECT_DIR$/.idea/gp_spc.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/code_git/mp_gp_ug.py" afterPath="$PROJECT_DIR$/code_git/mp_gp_ug.py" />
+      <change beforePath="$PROJECT_DIR$/code_git/eval_sondajes_Gpy.ipynb" afterPath="$PROJECT_DIR$/code_git/eval_sondajes_Gpy.ipynb" />
+      <change beforePath="$PROJECT_DIR$/code_git/mp_gp_test.py" afterPath="$PROJECT_DIR$/code_git/mp_gp_test.py" />
+      <change beforePath="$PROJECT_DIR$/code_git/presentacion_resultados.ipynb" afterPath="$PROJECT_DIR$/code_git/presentacion_resultados.ipynb" />
       <change beforePath="$PROJECT_DIR$/code_git/visualizacion_estimacion.py" afterPath="$PROJECT_DIR$/code_git/visualizacion_estimacion.py" />
-      <change beforePath="$PROJECT_DIR$/kriging/.idea/workspace.xml" afterPath="$PROJECT_DIR$/kriging/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,35 +19,35 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="mp_gp_test.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="mp_gp_test.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code_git/mp_gp_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1491">
-              <caret line="131" column="24" lean-forward="false" selection-start-line="131" selection-start-column="24" selection-end-line="131" selection-end-column="24" />
-              <folding>
-                <marker date="1519603485760" expanded="true" signature="20094:20110" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mp_gp_ug.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/code_git/mp_gp_ug.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="184" column="26" lean-forward="false" selection-start-line="184" selection-start-column="26" selection-end-line="184" selection-end-column="26" />
+            <state relative-caret-position="203">
+              <caret line="148" column="17" lean-forward="false" selection-start-line="148" selection-start-column="17" selection-end-line="148" selection-end-column="17" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#7228#7242#0" expanded="false" />
+                <element signature="e#10651#10727#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="visualizacion_estimacion.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="visualizacion_estimacion.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code_git/visualizacion_estimacion.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="277" column="5" lean-forward="false" selection-start-line="277" selection-start-column="5" selection-end-line="277" selection-end-column="5" />
+            <state relative-caret-position="492">
+              <caret line="285" column="35" lean-forward="false" selection-start-line="285" selection-start-column="35" selection-end-line="285" selection-end-column="35" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mp_gp_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../gp_spc/code/mp_gp_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-2346">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -78,19 +78,19 @@
         <option value="$PROJECT_DIR$/kriging/estimar_outlier_2(1).py" />
         <option value="$PROJECT_DIR$/code_git/concatenar_estimaciones.py" />
         <option value="$PROJECT_DIR$/code_git/gp_standard.py" />
-        <option value="$PROJECT_DIR$/code_git/mp_gp_test.py" />
         <option value="$PROJECT_DIR$/code_git/mp_gp_ug.py" />
         <option value="$PROJECT_DIR$/code_git/visualizacion_estimacion.py" />
+        <option value="$PROJECT_DIR$/code_git/mp_gp_test.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="-8" />
-    <option name="width" value="976" />
-    <option name="height" value="1038" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-7" />
+    <option name="width" value="974" />
+    <option name="height" value="1047" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -103,29 +103,10 @@
       <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scratches" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="streaming_sparse_gp" type="b2602c69:ProjectViewProjectNode" />
-              <item name="streaming_sparse_gp" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="streaming_sparse_gp" type="b2602c69:ProjectViewProjectNode" />
-              <item name="streaming_sparse_gp" type="462c0819:PsiDirectoryNode" />
-              <item name="code_git" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../gp_spc/code/mp_gp_test.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -274,15 +255,13 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="976" height="1038" extended-state="1" />
+    <frame x="-7" y="0" width="974" height="1047" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295711" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="R Packages" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="R Graphics" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23990773" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23929748" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298351" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2629797" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -294,6 +273,8 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="R Packages" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="R Graphics" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -309,10 +290,42 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/code_git/mp_gp_test.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2057">
+          <caret line="131" column="24" lean-forward="false" selection-start-line="131" selection-start-column="24" selection-end-line="131" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#7228#7242#0" expanded="false" />
+            <element signature="e#10651#10727#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code_git/mp_gp_ug.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2992">
+          <caret line="184" column="26" lean-forward="false" selection-start-line="184" selection-start-column="26" selection-end-line="184" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#10#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code_git/visualizacion_estimacion.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4624">
+          <caret line="277" column="5" lean-forward="false" selection-start-line="277" selection-start-column="5" selection-end-line="277" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code_git/mp_gp_test.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1519603485760" expanded="true" signature="20094:20110" ph="..." />
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#7228#7242#0" expanded="false" />
+            <element signature="e#10651#10727#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -322,7 +335,7 @@
         <state relative-caret-position="3591">
           <caret line="179" column="59" lean-forward="true" selection-start-line="179" selection-start-column="59" selection-end-line="179" selection-end-column="59" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -331,9 +344,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3465">
           <caret line="165" column="0" lean-forward="false" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#57#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -341,9 +351,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2541">
           <caret line="124" column="0" lean-forward="false" selection-start-line="124" selection-start-column="0" selection-end-line="124" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -352,7 +360,9 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1519603485760" expanded="true" signature="20094:20110" ph="..." />
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#7228#7242#0" expanded="false" />
+            <element signature="e#10651#10727#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -362,9 +372,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2130">
           <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -380,7 +388,9 @@
         <state relative-caret-position="3961">
           <caret line="306" column="26" lean-forward="false" selection-start-line="306" selection-start-column="26" selection-end-line="306" selection-end-column="26" />
           <folding>
-            <marker date="1519603485760" expanded="true" signature="20094:20110" ph="..." />
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#7228#7242#0" expanded="false" />
+            <element signature="e#10651#10727#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -390,9 +400,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2074">
           <caret line="125" column="70" lean-forward="false" selection-start-line="125" selection-start-column="70" selection-end-line="125" selection-end-column="70" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -407,9 +415,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2669">
           <caret line="165" column="0" lean-forward="true" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#57#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -430,41 +435,48 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/code_git/print_in_console.py" />
-    <entry file="file://$PROJECT_DIR$/code_git/mp_gp_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1491">
-          <caret line="131" column="24" lean-forward="false" selection-start-line="131" selection-start-column="24" selection-end-line="131" selection-end-column="24" />
-          <folding>
-            <marker date="1519603485760" expanded="true" signature="20094:20110" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/kriging/estimar_outlier_2(1).py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="146">
           <caret line="165" column="0" lean-forward="false" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#57#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/code_git/mp_gp_ug.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
+        <state relative-caret-position="617">
           <caret line="184" column="26" lean-forward="false" selection-start-line="184" selection-start-column="26" selection-end-line="184" selection-end-column="26" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/code_git/visualizacion_estimacion.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="277" column="5" lean-forward="false" selection-start-line="277" selection-start-column="5" selection-end-line="277" selection-end-column="5" />
+        <state relative-caret-position="492">
+          <caret line="285" column="35" lean-forward="false" selection-start-line="285" selection-start-column="35" selection-end-line="285" selection-end-column="35" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../gp_spc/code/mp_gp_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2346">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code_git/mp_gp_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="148" column="17" lean-forward="false" selection-start-line="148" selection-start-column="17" selection-end-line="148" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#7228#7242#0" expanded="false" />
+            <element signature="e#10651#10727#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
