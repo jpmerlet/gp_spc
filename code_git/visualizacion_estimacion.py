@@ -115,23 +115,23 @@ def plotear_f1(list_paths):
             _plot_f1(list_paths[i], dicc_anual_f1, YEARS, i, axes)
 
 
-def _plot_f1(path_name, dicc_f1, years, i, ejes, dicc_muestras=None):
+def _plot_f1(path_name, dicc_f1, YEARS, i, ejes, dicc_muestras=None):
     if dicc_muestras is not None:
         axis = ejes[i, ]
         df_dicc_f1 = pd.DataFrame.from_dict(dicc_f1)
         df_dicc_muestras = pd.DataFrame.from_dict(dicc_muestras)
-        f1 = df_dicc_f1[years[0]]
-        muestras = df_dicc_muestras[years[0]]
-        for year in years[1:]:
+        f1 = df_dicc_f1[YEARS[0]]
+        muestras = df_dicc_muestras[YEARS[0]]
+        for year in YEARS[1:]:
             f1 = pd.concat([f1, df_dicc_f1[year]], names=['f1'])
             muestras = pd.concat([muestras, df_dicc_muestras[year]], names=['f1'])
         # return f1, muestras
         f1 = f1.dropna()  # elimina todas las filas con Nan
-        muestras = muestras.dropna()
-        f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
+        # muestras = muestras.dropna()
+        f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(YEARS[0]),
                                                                  periods=f1.shape[0], freq='MS'))
-        muestras_df = pd.DataFrame(muestras.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
-                                                                             periods=muestras.shape[0], freq='MS'))
+        # muestras_df = pd.DataFrame(muestras.as_matrix(), index=pd.date_range('1/1/' + str(YEARS[0]),
+        #                                                                      periods=muestras.shape[0], freq='MS'))
         # agregar cantidad de muestras en pomedio utilizadas por mes
         # axis_muestras = axis.twinx()
         # muestras_df.plot.bar(ax=axis_muestras, legend=False, width=0.1)
@@ -160,12 +160,12 @@ def _plot_f1(path_name, dicc_f1, years, i, ejes, dicc_muestras=None):
     else:
         axis = ejes[i, ]
         df_dicc_f1 = pd.DataFrame.from_dict(dicc_f1)
-        f1 = df_dicc_f1[years[0]]
-        for year in years[1:]:
+        f1 = df_dicc_f1[YEARS[0]]
+        for year in YEARS[1:]:
             f1 = pd.concat([f1, df_dicc_f1[year]], names=['f1'])
         # return f1, muestras
         f1 = f1.dropna()  # elimina todas las filas con Nan
-        f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(years[0]),
+        f1_df = pd.DataFrame(f1.as_matrix(), index=pd.date_range('1/1/' + str(YEARS[0]),
                                                                  periods=f1.shape[0], freq='MS'))
 
         f1_df.columns = ['f1']
@@ -187,6 +187,7 @@ def plot_errores_lista(lists_path, plot_reg=False):
         distancia = groups[3].split('.')[0]
         plt.plot(range(len(errores)), errores, label=ker_name + ',' + 'dist:' + distancia)
         plt.legend()
+
 
 def plot_errores(df_estimaciones, plot):
 
@@ -240,7 +241,7 @@ if __name__ == '__main__':
 
     # ker: RBF(3, ARD=True)
     # dist:35
-    est_2 = path_estimacion + 'mp_test_all_2_35.csv'
+    est_rbf_35 = path_estimacion + 'mp_test_all_2_35.csv'
 
     # ker: Matern52(3, ARD=True)
     # dist:20
@@ -266,9 +267,13 @@ if __name__ == '__main__':
     # dist:33
     est_Mat32_35 = path_estimacion + 'mp_gp_Mat32_35.csv'
 
+    # ker: RBF(3, ARD=True)
+    # dist:33
+    est_rbf_33 = path_estimacion + 'mp_gp_rbf_33.csv'
+
     # ker: Mat32(3, ARD=True)
     # dist:33
-    est_rbf_33 = path_estimacion + 'mp_gpUg_rbf_33.csv'
+    est_rbf_ug_33 = path_estimacion + 'mp_gpUg_rbf_33.csv'
 
     # ker: Mat32(3, ARD=True)
     # dist:33
@@ -278,7 +283,7 @@ if __name__ == '__main__':
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
 
     # paths_list = [est_2, est_Mat52_25, est_Mat52_30, est_ok]
-    paths_list = [est_rbf_20, est_Mat52_20]
+    paths_list = [est_2, est_rbf_33]
     plotear_f1(paths_list)
     plt.figure()
     plot_errores_lista(paths_list[:5])
