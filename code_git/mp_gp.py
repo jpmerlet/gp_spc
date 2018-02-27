@@ -98,7 +98,9 @@ def estimation_by_point_mp(IDHOLEs, out_q, model, ker, distancia, lik=GPy.likeli
             predijo = False
             try:
                 modelo.optimize(messages=False, max_f_eval=1000)
-                y_predicc, _ = modelo.predict(test_point_std)
+                y_predicc, _ = modelo.predict(np.array([[test_point_std[0],
+                                                         test_point_std[1],
+                                                         test_point_std[2]]]))
                 predijo = True
 
             except GPy.util.linalg.linalg.LinAlgError as err:
@@ -109,9 +111,9 @@ def estimation_by_point_mp(IDHOLEs, out_q, model, ker, distancia, lik=GPy.likeli
                 print('La matriz definida por el kernel no es definida positiva')
                 pass
             if predijo:
-                y_preds.extend(list(y_predicc * y.std() + y.mean()))
+                y_preds.extend([y_predicc * y.std() + y.mean()])
             else:
-                y_preds.extend(list(np.array([-99])))
+                y_preds.extend([np.array([-99])])
         # transformar restricciones en ndarray, por sia caso
         y_preds_ndarray = np.array(y_preds.copy())
         dicc_preds[idhole] = y_preds_ndarray

@@ -245,12 +245,16 @@ if __name__ == '__main__':
 
     # ker: RBF(3, ARD=True)
     # dist:33
+    est_rbf_GP_33 = path_estimacion + 'mp_GP_rbf_33.csv'
+
+    # ker: RBF(3, ARD=True)
+    # dist:33
     est_rbf_ug_33 = path_estimacion + 'mp_gpUg_rbf_33.csv'
 
     # se grafican los resultados de kriging
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
 
-    paths_list = [est_2, est_rbf_ug_33, est_rbf_33]
+    paths_list = [est_2, est_rbf_ug_33, est_rbf_GP_33]
     plotear_f1(paths_list)
     plt.figure()
     plot_errores_lista(paths_list[:5])
