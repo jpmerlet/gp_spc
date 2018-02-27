@@ -77,8 +77,8 @@ def sacar_repeticiones(iterable):
 
 def plotear_f1(list_paths):
     n = len(list_paths)
-    # noinspection PyTypeChecker
     fig, axes = plt.subplots(nrows=n, ncols=1, sharey=True)
+    plt.suptitle('F1 de OK & GP', fontsize=15)
     for i in range(n):
         estimacion_sorted = add_year_month_sorted(list_paths[i])
         YEARS = get_years(list_paths[i])
@@ -150,6 +150,7 @@ def _plot_f1(path_name, dicc_f1, YEARS, i, ejes, dicc_muestras=None):
         # se agregan los margenes para el f1
         axis.axhline(y=1.1, color='g', linestyle='-')
         axis.axhline(y=0.9, color='g', linestyle='-')
+        axis.axhline(y=1, color='k', linestyle='--')
 
         # a partir del nombre del archivo se recupera el nombre del kernel y la distancia de busqueda
         groups = path_name.split('_')
@@ -172,20 +173,41 @@ def _plot_f1(path_name, dicc_f1, YEARS, i, ejes, dicc_muestras=None):
         f1_df.plot(style='bo-', ax=axis)
         axis.axhline(y=1.1, color='g', linestyle='-')
         axis.axhline(y=0.9, color='g', linestyle='-')
+        axis.axhline(y=1, color='k', linestyle='--')
 
 
 def plot_errores_lista(lists_path, plot_reg=False):
+    fig = plt.figure()
+    fig.suptitle('AMPRD90 de GP & OK', fontsize=15)
     n = len(lists_path)
     for i in range(n):
         df_est = pd.read_csv(lists_path[i])
         print('####################')
         print(lists_path[i])
         errores = plot_errores(df_est, plot_reg)
-        path_name = lists_path[i]
-        groups = path_name.split('_')
-        ker_name = groups[2]
-        distancia = groups[3].split('.')[0]
-        plt.plot(range(len(errores)), errores, label=ker_name + ',' + 'dist:' + distancia)
+
+        # grafico de la curva de errores
+        if 'sondaje' not in lists_path[i]:
+            # path_name = lists_path[i]
+            # groups = path_name.split('_')
+            # ker_name = groups[2]
+            # distancia = groups[3].split('.')[0]
+            plt.plot(range(len(errores)), errores, label='GP')
+        else:
+            etiqueta = 'Kriging'
+            plt.plot(range(len(errores)), errores, label=etiqueta)
+        AMPRD90 = np.percentile(errores, 90)
+
+        # grafico del punto donde se encuentra el AMPRD90
+        posicion = 0
+        for error in errores:
+            if error < AMPRD90:
+                posicion += 1
+        print(posicion)
+        plt.plot([posicion, posicion], [0, AMPRD90], 'k-')
+        plt.plot([0, posicion], [AMPRD90, AMPRD90], 'k-')
+        plt.text(0, AMPRD90, 'AMPRD90: {0:.2f}'.format(AMPRD90))
+        plt.plot([posicion], [AMPRD90], 'ro')
         plt.legend()
 
 
@@ -229,10 +251,21 @@ def r2_gp_by_f1(path_est):
     return
 
 
-# def analisis_num_muestras(path_est):
+# def histograma(list_path):
+#     n = len(list_path)
+#     fig, axes = plt.subplots(nrows=n, ncols=1)
+#     print(axes)
+#     for i, ax in enumerate(axes):
+#         eje_i = axes[i, ]
+#         path_i = list_path[i]
+#         df_estimacion = add_year_month_sorted(path_i)
+#         df_estimacion = df_estimacion[['cut', 'cut_poz']]
+#         df_estimacion.plot.hist(bins=100, ax=eje_i, alpha=0.5, sharey=True)
+#         return df_estimacion
 
 
 if __name__ == '__main__':
+    plt.style.use('classic')
     path_estimacion = 'estimaciones/'
 
     # ker: RBF(3, ARD=True)
@@ -241,23 +274,34 @@ if __name__ == '__main__':
 
     # ker: RBF(3, ARD=True)
     # dist:33
-    est_rbf_33 = path_estimacion + 'mp_gp_rbf_33.csv'
-
-    # ker: RBF(3, ARD=True)
-    # dist:33
     est_rbf_GP_33 = path_estimacion + 'mp_GP_rbf_33.csv'
-
-    # ker: RBF(3, ARD=True)
-    # dist:33
-    est_rbf_ug_33 = path_estimacion + 'mp_gpUg_rbf_33.csv'
 
     # se grafican los resultados de kriging
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
 
-    paths_list = [est_2, est_rbf_ug_33, est_rbf_GP_33]
+    # se imprimen los errores de las estimaciones
+    paths_list = [est_rbf_GP_33, est_ok]
     plotear_f1(paths_list)
-    plt.figure()
-    plot_errores_lista(paths_list[:5])
+    plot_errores_lista(paths_list)
+
+    # histogramas de las predicciones
+    figura, ejess = plt.subplots(nrows=2, ncols=1)
+    figura.suptitle('Distribución de las estimaciones', fontsize=15)
+    for indice, ax in enumerate(ejess):
+        eje_i = ejess[indice, ]
+        path_i = paths_list[indice]
+        df_esti = add_year_month_sorted(path_i)
+        df_esti = df_esti[['cut', 'cut_poz']]
+        df_esti.plot.hist(bins=100, ax=eje_i, alpha=0.5, sharey=True)
+
+    # histograma de los errores
+    fig_err, axes_err = plt.subplots(nrows=2, ncols=1)
+    fig_err.suptitle('Distribución de los errores', fontsize=15)
+    for i_err, ax_err in enumerate(axes_err):
+        eje_i = ejess[indice, ]
+        path_i = paths_list[indice]
+        df_esti = add_year_month_sorted(path_i)
+        errores_array = plot_errores(df_esti, False)
 
     r2_gp_by_f1(est_2)
     plt.show()
