@@ -172,9 +172,8 @@ def mp_gaussian_process_by_test_point(IDHOLEs, nprocs, model, ker, distancia=35)
 
 if __name__ == '__main__':
     HOLEIDs = get_holeids()
-    kernel = GPy.kern.RBF(input_dim=3, active_dims=[0, 1, 2], ARD=True)  # + GPy.kern.RBF(input_dim=1, active_dims=[3]) * \
-    # GPy.kern.RBF(input_dim=1, active_dims=[4])
-    dist = 20
+    kernel = GPy.kern.RBF(input_dim=3, active_dims=[0, 1, 2], ARD=True)
+    dist = 35
     t0 = time.time()
     # diccionario = estimation_by_point_mp(HOLEIDs[:1], 'sgpr', kernel, dist)
     diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
@@ -182,7 +181,7 @@ if __name__ == '__main__':
 
     # exportar los datos
     path_estimacion = '../code_git/estimaciones/'
-    outfile_name = 'mp_gp2Ug_' + kernel.name + '_' + str(dist) + '.csv'
+    outfile_name = 'mp_gpUg_' + kernel.name + '_' + str(dist) + '.csv'
     outfile = open(path_estimacion + outfile_name, 'w')
     outfile.write('xcentre,ycentre,zcentre,minty,cut_poz,cut,f1\n')
     for holeid in HOLEIDs:

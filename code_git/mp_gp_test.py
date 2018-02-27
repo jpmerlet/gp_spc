@@ -255,10 +255,11 @@ if __name__ == '__main__':
     print('Se realiza estimacion con kernel RBF(ARD), parametros: default')
     HOLEIDs = get_holeids()
     kernel = GPy.kern.RBF(3, ARD=True)
+    modelo_estimacion = 'svi'
     dist = 33
     print('distancia de busqueda para entrenar: {}'.format(dist))
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, modelo_estimacion, kernel, distancia=dist)
     print('Tiempo para gp en paralelo: {}'.format(time.time()-t0))
 
     # exportar los datos
