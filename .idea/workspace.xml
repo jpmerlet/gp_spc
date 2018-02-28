@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="aae0be0b-7c71-43a4-aea0-7fb5ffa7f12e" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/code_git/presentacion_resultados.ipynb" afterPath="$PROJECT_DIR$/code_git/presentacion_resultados.ipynb" />
       <change beforePath="$PROJECT_DIR$/code_git/visualizacion_estimacion.py" afterPath="$PROJECT_DIR$/code_git/visualizacion_estimacion.py" />
       <change beforePath="$PROJECT_DIR$/kriging/estimar_outlier_2(1).py" afterPath="$PROJECT_DIR$/kriging/estimar_outlier_2(1).py" />
