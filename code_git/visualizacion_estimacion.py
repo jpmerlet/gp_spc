@@ -184,7 +184,7 @@ def plot_errores_lista(lists_path, plot_reg=False):
         df_est = pd.read_csv(lists_path[i])
         print('####################')
         print(lists_path[i])
-        errores = plot_errores(df_est, plot_reg)
+        errors = plot_errores(df_est, plot_reg)
 
         # grafico de la curva de errores
         if 'sondaje' not in lists_path[i]:
@@ -192,15 +192,15 @@ def plot_errores_lista(lists_path, plot_reg=False):
             # groups = path_name.split('_')
             # ker_name = groups[2]
             # distancia = groups[3].split('.')[0]
-            plt.plot(range(len(errores)), errores, label='GP')
+            plt.plot(range(len(errors)), errors, label='GP')
         else:
             etiqueta = 'Kriging'
-            plt.plot(range(len(errores)), errores, label=etiqueta)
-        AMPRD90 = np.percentile(errores, 90)
+            plt.plot(range(len(errors)), errors, label=etiqueta)
+        AMPRD90 = np.percentile(errors, 90)
 
         # grafico del punto donde se encuentra el AMPRD90
         posicion = 0
-        for error in errores:
+        for error in errors:
             if error < AMPRD90:
                 posicion += 1
         print(posicion)
@@ -251,19 +251,6 @@ def r2_gp_by_f1(path_est):
     return
 
 
-# def histograma(list_path):
-#     n = len(list_path)
-#     fig, axes = plt.subplots(nrows=n, ncols=1)
-#     print(axes)
-#     for i, ax in enumerate(axes):
-#         eje_i = axes[i, ]
-#         path_i = list_path[i]
-#         df_estimacion = add_year_month_sorted(path_i)
-#         df_estimacion = df_estimacion[['cut', 'cut_poz']]
-#         df_estimacion.plot.hist(bins=100, ax=eje_i, alpha=0.5, sharey=True)
-#         return df_estimacion
-
-
 if __name__ == '__main__':
     plt.style.use('classic')
     path_estimacion = 'estimaciones/'
@@ -278,6 +265,7 @@ if __name__ == '__main__':
 
     # se grafican los resultados de kriging
     est_ok = '../kriging/modelo_estimado_sondaje_20.csv'
+    # est_ok = '../kriging/modelo_estimado_ok.csv'
 
     # se imprimen los errores de las estimaciones
     paths_list = [est_rbf_GP_33, est_ok]
@@ -285,7 +273,7 @@ if __name__ == '__main__':
     plot_errores_lista(paths_list)
 
     # histogramas de las predicciones
-    figura, ejess = plt.subplots(nrows=2, ncols=1)
+    figura, ejess = plt.subplots(nrows=2, ncols=1, sharey=True)
     figura.suptitle('Distribución de las estimaciones', fontsize=15)
     for indice, ax in enumerate(ejess):
         eje_i = ejess[indice, ]
@@ -294,14 +282,26 @@ if __name__ == '__main__':
         df_esti = df_esti[['cut', 'cut_poz']]
         df_esti.plot.hist(bins=100, ax=eje_i, alpha=0.5, sharey=True)
 
-    # histograma de los errores
-    fig_err, axes_err = plt.subplots(nrows=2, ncols=1)
-    fig_err.suptitle('Distribución de los errores', fontsize=15)
-    for i_err, ax_err in enumerate(axes_err):
-        eje_i = ejess[indice, ]
-        path_i = paths_list[indice]
-        df_esti = add_year_month_sorted(path_i)
-        errores_array = plot_errores(df_esti, False)
+    # figura, ejess = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
+    # figura.suptitle('Distribución de los errores', fontsize=15)
+    # for i_err, ax_err in enumerate(ejess):
+    #     eje_i = ax_err
+    #     path_i = paths_list[i_err]
+    #     df_esti = add_year_month_sorted(path_i)
+    #     errores = plot_errores(df_esti, False)
+    #     etiqueta_modelo = ''
+    #     if 'sondaje' in path_i:
+    #         etiqueta_modelo = 'ok'
+    #     else:
+    #         etiqueta_modelo = 'gp'
+    #     df_errores = pd.DataFrame({etiqueta_modelo: errores})
+    #     df_errores.plot.hist(bins=100, ax=eje_i, sharey=True)
 
-    r2_gp_by_f1(est_2)
+    # figura = plt.figure()
+    # figura.suptitle('Distribución de los errores', fontsize=15)
+    # error_gp = plot_errores(add_year_month_sorted(paths_list[0]), False)
+    # error_ok = plot_errores(add_year_month_sorted(paths_list[1]), False)
+    # plt.hist([error_ok, error_gp], bins=10, stacked=True, label=['ok','gp'])
+    # plt.legend()
+    # r2_gp_by_f1(est_2)
     plt.show()
