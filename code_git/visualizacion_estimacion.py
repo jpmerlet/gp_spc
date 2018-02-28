@@ -8,8 +8,14 @@ years = mdates.YearLocator()   # every year
 months = mdates.MonthLocator()  # every month
 yearsFmt = mdates.DateFormatter('%Y')
 
+##############################################
+# To DO LIST
+
+# * QQPLOT (pozo contar gp y ok)
+
 
 def get_years(path_est):
+
     estimacion_sorted = add_year_month_sorted(path_est)
     df_years = estimacion_sorted['year']
     seen = set()
@@ -28,12 +34,23 @@ def add_year_month_sorted(path_est):
     # con los datos ordenados por f1 (que es
     # lo mismo que ordenar por fecha)
     estimacion_original = pd.read_csv(path_est)
+    cols_names = list(estimacion_original.columns.values)
+    if 'cut_gp' in cols_names:
+        var_est = 'cut_gp'
+    elif 'cut_ok' in cols_names:
+        var_est = 'cut_ok'
 
+    elif 'cut' in cols_names:
+        var_est = 'cut'
+    elif 'cut_est' in cols_names:
+        var_est = 'cut_est'
+    else:
+        var_est = 'cut_vulcan'
     # solamente se consideran las estimaciones
     # que tienen f1 dado (i.e. no -99) y cut
     # mayor que cero
     estimacion_filtrada = estimacion_original.loc[(estimacion_original['f1'] > 0) &
-                                                  (estimacion_original['cut'] > 0)]
+                                                  (estimacion_original[var_est] > 0)]
     f1 = estimacion_filtrada['f1'].as_matrix()
     estimacion = cp.copy(estimacion_filtrada)
     estimacion = estimacion.assign(year=((f1 - 1) / 12).astype(int) + 2014)
@@ -75,12 +92,84 @@ def sacar_repeticiones(iterable):
     return lista_sin_rep
 
 
+def concatenar_estimaciones(list_path, sinLixCob=False):
+    global df_concatenated
+    path_est_gp = 'estimaciones/mp_GPConcat_rbf_33.csv'
+    # path_est_ok = '../kriging/modeloConcant_estimado_sondaje_20.csv'
+    path_est_vulcan = 'estimaciones/vulcan.csv'
+
+    path_0 = list_path[0]
+    df_est_0 = pd.read_csv(path_0)
+    if 'sondaje' in path_0:
+        var_est = 'cut_ok'
+        df_est_0.rename(columns={'cut': 'cut_ok'}, inplace=True)
+
+    elif 'GP' in path_0:
+        var_est = 'cut_gp'
+        df_est_0.rename(columns={'cut': 'cut_gp'}, inplace=True)
+    else:
+        var_est = 'cut_est'
+        df_est_0.rename(columns={'cut_est': 'cut_vulcan'}, inplace=True)
+        df_est_0.rename(columns={'midx': 'xcentre', 'midy': 'ycentre', 'midz': 'zcentre'}, inplace=True)
+
+    df_est_0 = df_est_0.loc[df_est_0[var_est] > 0]
+
+    # se concatenan con los que vienen
+    for ruta_i in list_path[1:]:
+        df_est_i = pd.read_csv(ruta_i)
+        if 'sondaje' in ruta_i:
+            var_est = 'cut_ok'
+            df_est_i.rename(columns={'cut': 'cut_ok'}, inplace=True)
+
+        elif 'GP' in ruta_i:
+            var_est = 'cut_gp'
+            df_est_i.rename(columns={'cut': 'cut_gp'}, inplace=True)
+        else:
+            var_est = 'cut_vulcan'
+            df_est_i.rename(columns={'cut_est': 'cut_vulcan'}, inplace=True)
+            df_est_i.rename(columns={'midx': 'xcentre', 'midy': 'ycentre', 'midz': 'zcentre'}, inplace=True)
+
+        df_est_i = df_est_i.loc[df_est_i[var_est] > 0]
+        df_concatenated = pd.merge(df_est_0, df_est_i, on=['xcentre', 'ycentre', 'zcentre'])
+        df_est_0 = df_concatenated
+    df_concatenated.rename(columns={'cut_poz_x': 'cut_poz'}, inplace=True)
+    if sinLixCob:
+        df_concatenated = df_concatenated.loc[df_concatenated['minty'] > 10]
+
+    df_gp = df_concatenated[['xcentre', 'ycentre', 'zcentre', 'cut_gp', 'cut_poz', 'f1']]
+    # df_ok = df_concatenated[['xcentre', 'ycentre', 'zcentre', 'cut_ok', 'cut_poz', 'f1']]
+    df_vulcan = df_concatenated[['xcentre', 'ycentre', 'zcentre', 'cut_vulcan', 'cut_poz', 'f1']]
+
+    df_gp.to_csv(path_est_gp)
+    # df_ok.to_csv(path_est_ok)
+    df_vulcan.to_csv(path_est_vulcan)
+
+
 def plotear_f1(list_paths):
     n = len(list_paths)
     fig, axes = plt.subplots(nrows=n, ncols=1, sharey=True)
     plt.suptitle('F1 de OK & GP', fontsize=15)
     for i in range(n):
         estimacion_sorted = add_year_month_sorted(list_paths[i])
+
+        # se recupera el nombre de la variable estimada y real en el .csv, si no la reconoce para y avisa
+        cols_names = list(estimacion_sorted.columns.values)
+
+        if 'cut_gp' in cols_names:
+            var_est = 'cut_gp'
+            var_real = 'cut_poz'
+        elif 'cut_ok' in cols_names:
+            var_est = 'cut_ok'
+            var_real = 'cut_poz'
+        elif 'cut' in cols_names:
+            var_est = 'cut'
+            var_real = 'cut_poz'
+        elif 'cut_est' in cols_names:
+            var_est = 'cut_est'
+            var_real = 'cut_real'
+        else:
+            var_est = 'cut_vulcan'
+            var_real = 'cut_poz'
         YEARS = get_years(list_paths[i])
         dicc_anual_f1 = dict()
         dicc_anual_muestras = dict()
@@ -98,8 +187,8 @@ def plotear_f1(list_paths):
             dicc_cuociente_mensual = dict()  # mes: cut_poz.mean()/cut.mean()
             dicc_promedio_mensual = dict()  # mes: muestras.mean()
             for mes in MESES:
-                cut_mes = df_by_year.loc[df_by_year['mes'] == mes]['cut']
-                cut_poz_mes = df_by_year.loc[df_by_year['mes'] == mes]['cut_poz']
+                cut_mes = df_by_year.loc[df_by_year['mes'] == mes][var_est]
+                cut_poz_mes = df_by_year.loc[df_by_year['mes'] == mes][var_real]
                 cuociente = np.divide(cut_poz_mes.mean(), cut_mes.mean())
                 dicc_cuociente_mensual[mes] = cuociente
                 if 'muestras' in list(df_by_year.columns):  # solo funcionara en gp
@@ -153,13 +242,24 @@ def _plot_f1(path_name, dicc_f1, YEARS, i, ejes, dicc_muestras=None):
         axis.axhline(y=1, color='k', linestyle='--')
 
         # a partir del nombre del archivo se recupera el nombre del kernel y la distancia de busqueda
-        groups = path_name.split('_')
-        ker_name = groups[2]
-        distancia = groups[3].split('.')[0]
-        axis.set_title('Kernel:{}, distancia:{}'.format(ker_name, distancia))
+        # groups = path_name.split('_')
+        # ker_name = groups[2]
+        # distancia = groups[3].split('.')[0]
+        if 'sondaje' in path_name:
+            title = 'OK outlier'
+
+        elif 'GP' in path_name:
+            title = 'GP'
+        else:
+            title = 'OK vulvan'
+        axis.set_title(title)
 
     else:
-        axis = ejes[i, ]
+        try:
+            axis = ejes[i, ]
+        except TypeError:
+            axis = ejes
+            pass
         df_dicc_f1 = pd.DataFrame.from_dict(dicc_f1)
         f1 = df_dicc_f1[YEARS[0]]
         for year in YEARS[1:]:
@@ -174,6 +274,14 @@ def _plot_f1(path_name, dicc_f1, YEARS, i, ejes, dicc_muestras=None):
         axis.axhline(y=1.1, color='g', linestyle='-')
         axis.axhline(y=0.9, color='g', linestyle='-')
         axis.axhline(y=1, color='k', linestyle='--')
+        if 'sondaje' in path_name:
+            title = 'OK outlier'
+
+        elif 'GP' in path_name:
+            title = 'GP'
+        else:
+            title = 'OK vulcan'
+        axis.set_title(title)
 
 
 def plot_errores_lista(lists_path, plot_reg=False):
@@ -187,15 +295,17 @@ def plot_errores_lista(lists_path, plot_reg=False):
         errors = plot_errores(df_est, plot_reg)
 
         # grafico de la curva de errores
-        if 'sondaje' not in lists_path[i]:
+        if 'GP' in lists_path[i]:
             # path_name = lists_path[i]
             # groups = path_name.split('_')
             # ker_name = groups[2]
             # distancia = groups[3].split('.')[0]
             plt.plot(range(len(errors)), errors, label='GP')
+
+        elif 'point' in lists_path[i]:
+            plt.plot(range(len(errors)), errors, label='Vulcan')
         else:
-            etiqueta = 'Kriging'
-            plt.plot(range(len(errors)), errors, label=etiqueta)
+            plt.plot(range(len(errors)), errors, label='OK outlier')
         AMPRD90 = np.percentile(errors, 90)
 
         # grafico del punto donde se encuentra el AMPRD90
@@ -214,11 +324,27 @@ def plot_errores_lista(lists_path, plot_reg=False):
 def plot_errores(df_estimaciones, plot):
 
     # se filtra por puntos donde se realizó estimacion y donde existe f1
+    cols_names = list(df_estimaciones.columns.values)
+    if 'cut_gp' in cols_names:
+        var_est = 'cut_gp'
+        var_real = 'cut_poz'
+    elif 'cut_ok' in cols_names:
+        var_est = 'cut_ok'
+        var_real = 'cut_poz'
+    elif 'cut' in cols_names:
+        var_est = 'cut'
+        var_real = 'cut_poz'
+    elif 'cut_est' in cols_names:
+        var_est = 'cut_est'
+        var_real = 'cut_real'
+    else:
+        var_est = 'cut_vulcan'
+        var_real = 'cut_poz'
     estimacion_filtrada = df_estimaciones.loc[(df_estimaciones['f1'] > 0) &
-                                              (df_estimaciones['cut'] > 0)]
+                                              (df_estimaciones[var_est] > 0)]
 
-    cut_poz = estimacion_filtrada['cut_poz'].as_matrix()
-    cut_est = estimacion_filtrada['cut'].as_matrix()
+    cut_poz = estimacion_filtrada[var_real].as_matrix()
+    cut_est = estimacion_filtrada[var_est].as_matrix()
     error = 2*np.divide(np.absolute(cut_poz-cut_est), cut_poz + cut_est)
     AMPRD90 = np.percentile(error, 90)
     r2 = r2_score(cut_poz, cut_est)
@@ -251,24 +377,6 @@ def r2_gp_by_f1(path_est):
     return
 
 
-def generar_concatenacion(path_all):
-    estimacion_original = pd.read_csv(path_all)
-    estimacion_filtrada = estimacion_original.loc[estimacion_original['f1'] > 0]
-
-    f1 = estimacion_filtrada['f1'].as_matrix()
-    estimacion = cp.copy(estimacion_filtrada)
-    estimacion = estimacion.assign(year=((f1 - 1) / 12).astype(int) + 2014)
-    estimacion = estimacion.assign(mes=((f1 - 1) % 12 + 1).astype(int))
-    estimacion_sorted = estimacion.sort_values('f1', ascending=True)
-    df_gp = estimacion_sorted[['cut_gp', 'cut_ok', 'mes', 'years']]
-    df_ok = estimacion_sorted[['cut_ok', 'cut_ok', 'mes', 'years']]
-    path_est = 'estimaciones/'
-    name_ok = 'modelo_estimadoALL_ok.csv'
-    name_gp = 'mp_GPALL_rbf_33.csv'
-    df_gp.to_csv(path_est+name_gp)
-    df_ok.to_csv(path_est + name_ok)
-
-
 if __name__ == '__main__':
     plt.style.use('classic')
     path_estimacion = 'estimaciones/'
@@ -286,19 +394,10 @@ if __name__ == '__main__':
     # est_ok = '../kriging/modelo_estimado_ok.csv'
 
     # se imprimen los errores de las estimaciones
-    paths_list = [est_rbf_GP_33, est_ok]
-    plotear_f1(paths_list)
-    plot_errores_lista(paths_list)
-
-    # histogramas de las predicciones
-    figura, ejess = plt.subplots(nrows=2, ncols=1, sharey=True)
-    figura.suptitle('Distribución de las estimaciones', fontsize=15)
-    for indice, ax in enumerate(ejess):
-        eje_i = ejess[indice, ]
-        path_i = paths_list[indice]
-        df_esti = add_year_month_sorted(path_i)
-        df_esti = df_esti[['cut', 'cut_poz']]
-        df_esti.plot.hist(bins=100, ax=eje_i, alpha=0.5, sharey=True)
+    paths_list = [est_rbf_GP_33, 'SPC_point_f1_correg.csv', est_ok]
+    concatenar_estimaciones(paths_list, sinLixCob=True)  # este  comando genera los .csv tales que se estan considerando los mismos pts
+    # plotear_f1(paths_list)
+    # plot_errores_lista(paths_list)
 
     # figura, ejess = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
     # figura.suptitle('Distribución de los errores', fontsize=15)
@@ -322,5 +421,34 @@ if __name__ == '__main__':
     # plt.hist([error_ok, error_gp], bins=10, stacked=True, label=['ok','gp'])
     # plt.legend()
     # r2_gp_by_f1(est_2)
+    paths_list = ['estimaciones/mp_GPConcat_rbf_33.csv', 'estimaciones/vulcan.csv']
+    plotear_f1(['estimaciones/mp_GPConcat_rbf_33.csv', 'estimaciones/vulcan.csv'])
 
+    plot_errores_lista(paths_list)
+
+    # histogramas de las predicciones
+    figura, ejess = plt.subplots(nrows=len(paths_list), ncols=1, sharey=True)
+    figura.suptitle('Distribución de las estimaciones', fontsize=15)
+    for indice, ax in enumerate(ejess):
+        eje_i = ejess[indice, ]
+        path_i = paths_list[indice]
+        df_esti = add_year_month_sorted(path_i)
+        names = list(df_esti.columns.values)
+        if 'cut_gp' in names:
+            variable_est = 'cut_gp'
+            variable_real = 'cut_poz'
+        elif 'cut_ok' in names:
+            variable_est = 'cut_ok'
+            variable_real = 'cut_poz'
+        elif 'cut' in names:
+            variable_est = 'cut'
+            variable_real = 'cut_poz'
+        elif 'cut_est' in names:
+            variable_est = 'cut_est'
+            variable_real = 'cut_real'
+        else:
+            variable_est = 'cut_vulcan'
+            variable_real = 'cut_poz'
+        df_esti = df_esti[[variable_est, variable_real]]
+        df_esti.plot.hist(bins=100, ax=eje_i, alpha=0.5, sharey=True)
     plt.show()

@@ -14,6 +14,8 @@ train_data = pd.read_csv('../GP_Data/cy17_spc_assays_rl6_entry.csv')
 test_data = pd.read_csv('../GP_Data/cy17_spc_assays_pvo_entry_ug.csv')
 test_cols = ['midx', 'midy', 'midz']
 
+print('ka')
+
 
 def get_holeids():
     df_holeid = test_data['dhid']
@@ -150,7 +152,7 @@ if __name__ == '__main__':
     kernel = GPy.kern.RBF(3, ARD=True)
     dist = 33
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 2, 'sgpr', kernel, distancia=dist)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
     print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
 
     # exportar los datos
