@@ -115,7 +115,7 @@ def estimate(blocks, composites, ellipsoid, model):
 
     kriging = PointKriging(ellipsoid, model)
 
-    cap = 5
+    cap = 2
 
     print('Estimando modelo de bloques:')
     for block in blocks:
