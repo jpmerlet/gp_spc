@@ -114,7 +114,7 @@ def estimation_by_point_mp(IDHOLEs, out_q, model, ker, distancia, lik=GPy.likeli
                 y_preds.extend([y_predicc * y.std() + y.mean()])
             else:
                 y_preds.extend([np.array([-99])])
-        # transformar restricciones en ndarray, por sia caso
+        # transformar restricciones en ndarray, por si acaso
         y_preds_ndarray = np.array(y_preds.copy())
         dicc_preds[idhole] = y_preds_ndarray
         printProgressBar(idx + 1, n,
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     kernel = GPy.kern.RBF(3, ARD=True)
     dist = 33
     t0 = time.time()
-    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 8, 'sgpr', kernel, distancia=dist)
+    diccionario = mp_gaussian_process_by_test_point(HOLEIDs, 2, 'sgpr', kernel, distancia=dist)
     print('Tiempo para gp en paralelo: {}'.format(time.time() - t0))
 
     # exportar los datos

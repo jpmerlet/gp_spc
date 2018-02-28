@@ -251,6 +251,24 @@ def r2_gp_by_f1(path_est):
     return
 
 
+def generar_concatenacion(path_all):
+    estimacion_original = pd.read_csv(path_all)
+    estimacion_filtrada = estimacion_original.loc[estimacion_original['f1'] > 0]
+
+    f1 = estimacion_filtrada['f1'].as_matrix()
+    estimacion = cp.copy(estimacion_filtrada)
+    estimacion = estimacion.assign(year=((f1 - 1) / 12).astype(int) + 2014)
+    estimacion = estimacion.assign(mes=((f1 - 1) % 12 + 1).astype(int))
+    estimacion_sorted = estimacion.sort_values('f1', ascending=True)
+    df_gp = estimacion_sorted[['cut_gp', 'cut_ok', 'mes', 'years']]
+    df_ok = estimacion_sorted[['cut_ok', 'cut_ok', 'mes', 'years']]
+    path_est = 'estimaciones/'
+    name_ok = 'modelo_estimadoALL_ok.csv'
+    name_gp = 'mp_GPALL_rbf_33.csv'
+    df_gp.to_csv(path_est+name_gp)
+    df_ok.to_csv(path_est + name_ok)
+
+
 if __name__ == '__main__':
     plt.style.use('classic')
     path_estimacion = 'estimaciones/'
@@ -304,4 +322,5 @@ if __name__ == '__main__':
     # plt.hist([error_ok, error_gp], bins=10, stacked=True, label=['ok','gp'])
     # plt.legend()
     # r2_gp_by_f1(est_2)
+
     plt.show()
