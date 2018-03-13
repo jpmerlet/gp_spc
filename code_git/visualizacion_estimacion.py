@@ -394,7 +394,8 @@ if __name__ == '__main__':
     # est_ok = '../kriging/modelo_estimado_ok.csv'
 
     # se imprimen los errores de las estimaciones
-    paths_list = [est_rbf_GP_33, 'SPC_point_f1_correg.csv', est_ok]
+    #paths_list = [est_rbf_GP_33, 'SPC_point_f1_correg.csv', est_ok]
+    paths_list = [est_rbf_GP_33, 'SPC_point_f1_correg.csv']  # solo se concatenan las de vulcan con las del gp
     concatenar_estimaciones(paths_list, sinLixCob=True)  # este  comando genera los .csv tales que se estan considerando los mismos pts
     # plotear_f1(paths_list)
     # plot_errores_lista(paths_list)
@@ -422,7 +423,7 @@ if __name__ == '__main__':
     # plt.legend()
     # r2_gp_by_f1(est_2)
     paths_list = ['estimaciones/mp_GPConcat_rbf_33.csv', 'estimaciones/vulcan.csv']
-    plotear_f1(['estimaciones/mp_GPConcat_rbf_33.csv', 'estimaciones/vulcan.csv'])
+    plotear_f1(paths_list)
 
     plot_errores_lista(paths_list)
 
