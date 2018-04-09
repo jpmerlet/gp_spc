@@ -11,7 +11,7 @@ yearsFmt = mdates.DateFormatter('%Y')
 ##############################################
 # To DO LIST
 
-# * QQPLOT (pozo contar gp y ok)
+# * QQPLOT (pozo contra gp y ok)
 
 
 def get_years(path_est):
@@ -120,19 +120,23 @@ def concatenar_estimaciones(list_path, sinLixCob=False):
         if 'sondaje' in ruta_i:
             var_est = 'cut_ok'
             df_est_i.rename(columns={'cut': 'cut_ok'}, inplace=True)
+            df_est_i.rename(columns={'f1_x': 'f1'}, inplace=True)
 
         elif 'GP' in ruta_i:
             var_est = 'cut_gp'
             df_est_i.rename(columns={'cut': 'cut_gp'}, inplace=True)
+            df_est_i.rename(columns={'f1_x': 'f1'}, inplace=True)
         else:
             var_est = 'cut_vulcan'
             df_est_i.rename(columns={'cut_est': 'cut_vulcan'}, inplace=True)
             df_est_i.rename(columns={'midx': 'xcentre', 'midy': 'ycentre', 'midz': 'zcentre'}, inplace=True)
+            df_est_i.rename(columns={'f1_x': 'f1'}, inplace=True)
 
         df_est_i = df_est_i.loc[df_est_i[var_est] > 0]
         df_concatenated = pd.merge(df_est_0, df_est_i, on=['xcentre', 'ycentre', 'zcentre'])
         df_est_0 = df_concatenated
     df_concatenated.rename(columns={'cut_poz_x': 'cut_poz'}, inplace=True)
+    df_concatenated.rename(columns={'f1_x': 'f1'}, inplace=True)
     if sinLixCob:
         df_concatenated = df_concatenated.loc[df_concatenated['minty'] > 10]
 
@@ -396,7 +400,7 @@ if __name__ == '__main__':
     # se imprimen los errores de las estimaciones
     #paths_list = [est_rbf_GP_33, 'SPC_point_f1_correg.csv', est_ok]
     paths_list = [est_rbf_GP_33, 'SPC_point_f1_correg.csv']  # solo se concatenan las de vulcan con las del gp
-    concatenar_estimaciones(paths_list, sinLixCob=True)  # este  comando genera los .csv tales que se estan considerando los mismos pts
+    concatenar_estimaciones(paths_list)  # este  comando genera los .csv tales que se estan considerando los mismos pts
     # plotear_f1(paths_list)
     # plot_errores_lista(paths_list)
 
